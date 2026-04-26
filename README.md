@@ -1,4 +1,5 @@
 # 💧 AquaPure: Advanced Water Intelligence Platform
+<!-- Reversion trigger -->
 
 **AquaPure** is a high-fidelity, data-driven environmental intelligence platform designed to monitor, analyze, and mitigate global water quality risks. Leveraging live telemetry from the **USGS (U.S. Geological Survey)** and **EPA (Environmental Protection Agency)**, AquaPure provides a real-time "digital twin" of water safety across thousands of sensor nodes.
 
