@@ -1,7 +1,6 @@
 'use client';
 
 import SideNavBar from '@/components/SideNavBar';
-import TopAppBar from '@/components/TopAppBar';
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePathname } from 'next/navigation';
 
@@ -13,7 +12,6 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   return (
     <SearchProvider>
       <SideNavBar />
-      <TopAppBar />
       <AnimatePresence mode="wait">
         <motion.main 
           key={pathname}
