@@ -9,6 +9,7 @@ const navItems = [
   { name: 'Explorer', href: '/explorer', icon: 'explore' },
   { name: 'Disease Encyclopedia', href: '/encyclopedia', icon: 'menu_book' },
   { name: 'Pollution Sources', href: '/pollution-sources', icon: 'factory' },
+  { name: 'Contaminants', href: '/contaminants', icon: 'science' },
   { name: 'Prevention', href: '/prevention', icon: 'shield' },
   { name: 'Calculator', href: '/calculator', icon: 'calculate' },
   { name: 'Stats', href: '/stats', icon: 'bar_chart' },

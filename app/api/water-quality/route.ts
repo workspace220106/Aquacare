@@ -35,7 +35,7 @@ export async function GET() {
     
     let processedData: any[] = [];
 
-    results.forEach((data, index) => {
+    results.forEach((data: any, index: number) => {
       if (!data || !data.value || !data.value.timeSeries) return;
 
       const timeSeries = data.value.timeSeries;
@@ -43,7 +43,7 @@ export async function GET() {
       // Group by site code
       const siteMap = new Map();
 
-      timeSeries.forEach(series => {
+      timeSeries.forEach((series: any) => {
         const siteCode = series.sourceInfo.siteCode[0].value;
         const siteName = series.sourceInfo.siteName;
         const lat = series.sourceInfo.geoLocation.geogLocation.latitude;
@@ -67,7 +67,7 @@ export async function GET() {
         }
 
         const siteData = siteMap.get(siteCode);
-        const metricName = PARAMETERS[paramCode];
+        const metricName = PARAMETERS[paramCode as keyof typeof PARAMETERS];
         if (metricName) {
           siteData.metrics[metricName] = latestValue;
         }
@@ -77,7 +77,7 @@ export async function GET() {
       const validSites = Array.from(siteMap.values()).filter(site => Object.keys(site.metrics).length >= 2);
       
       // Calculate a mock quality score based on available metrics
-      validSites.forEach(site => {
+      validSites.forEach((site: any) => {
         let score = 100;
         const m = site.metrics;
         
