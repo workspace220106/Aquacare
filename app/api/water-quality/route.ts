@@ -33,7 +33,7 @@ export async function GET() {
 
     const results = await Promise.all(promises);
     
-    let processedData = [];
+    let processedData: any[] = [];
 
     results.forEach((data, index) => {
       if (!data || !data.value || !data.value.timeSeries) return;
