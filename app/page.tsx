@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 
 export default function HomePage() {
   const [data, setData] = useState<any[]>([]);
@@ -42,22 +43,26 @@ export default function HomePage() {
           <p className="font-body-md text-body-md text-on-surface-variant mt-2">Real-time telemetry and analytical intelligence.</p>
         </div>
         <div className="flex gap-sm">
-          <motion.button 
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="border border-outline bg-surface-container-lowest text-on-surface px-md py-sm rounded hover:bg-surface-container transition-colors font-label-lg text-label-lg flex items-center gap-2"
-          >
-            <span className="material-symbols-outlined text-[18px]">download</span>
-            Export Data
-          </motion.button>
-          <motion.button 
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="bg-primary text-on-primary px-md py-sm rounded hover:bg-inverse-surface transition-colors font-label-lg text-label-lg flex items-center gap-2"
-          >
-            <span className="material-symbols-outlined text-[18px]">add</span>
-            New Report
-          </motion.button>
+          <Link href="/explorer">
+            <motion.div 
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="border border-outline bg-surface-container-lowest text-on-surface px-md py-sm rounded hover:bg-surface-container transition-colors font-label-lg text-label-lg flex items-center gap-2 cursor-pointer pointer-events-auto"
+            >
+              <span className="material-symbols-outlined text-[18px]">download</span>
+              Export Data
+            </motion.div>
+          </Link>
+          <Link href="/explorer">
+            <motion.div 
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="bg-primary text-on-primary px-md py-sm rounded hover:bg-inverse-surface transition-colors font-label-lg text-label-lg flex items-center gap-2 cursor-pointer"
+            >
+              <span className="material-symbols-outlined text-[18px]">add</span>
+              New Report
+            </motion.div>
+          </Link>
         </div>
       </motion.div>
 
@@ -92,12 +97,14 @@ export default function HomePage() {
             <p className="font-body-lg text-body-lg text-primary-fixed-dim mb-6 line-clamp-2">
                 Advanced USGS telemetry streams are active. Currently tracking {loading ? '...' : totalSites} sites across {loading ? '...' : 'surveyed regions'} via live API feeds.
             </p>
-            <motion.button 
-              whileHover={{ x: 10 }}
-              className="border border-on-primary text-on-primary px-md py-sm rounded hover:bg-on-primary hover:text-primary transition-colors font-label-lg text-label-lg flex items-center gap-2 w-max"
-            >
-                View Full Water Monitoring<span className="material-symbols-outlined text-[18px]">arrow_forward</span>
-            </motion.button>
+            <Link href="/explorer">
+              <motion.div 
+                whileHover={{ x: 10 }}
+                className="border border-on-primary text-on-primary px-md py-sm rounded hover:bg-on-primary hover:text-primary transition-colors font-label-lg text-label-lg flex items-center gap-2 w-max cursor-pointer pointer-events-auto"
+              >
+                  View Full Water Monitoring<span className="material-symbols-outlined text-[18px]">arrow_forward</span>
+              </motion.div>
+            </Link>
           </div>
         </motion.div>
 

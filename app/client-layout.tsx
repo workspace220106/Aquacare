@@ -12,18 +12,23 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   return (
     <SearchProvider>
       <SideNavBar />
-      <AnimatePresence mode="wait">
-        <motion.main 
-          key={pathname}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          transition={{ duration: 0.3 }}
-          className="flex-1 ml-64 pt-16 min-h-[1024px] bg-background bg-grid-pattern relative"
-        >
-          {children}
-        </motion.main>
-      </AnimatePresence>
+      <motion.main 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="flex-1 ml-64 pt-16 min-h-[1024px] bg-background bg-grid-pattern relative z-10"
+      >
+        <AnimatePresence mode="popLayout" initial={false}>
+          <motion.div
+            key={pathname}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+          >
+            {children}
+          </motion.div>
+        </AnimatePresence>
+      </motion.main>
     </SearchProvider>
   );
 }
