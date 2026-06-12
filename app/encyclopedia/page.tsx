@@ -95,7 +95,7 @@ export default function EncyclopediaPage() {
   const filteredPathogens = pathogens.filter(p => matchesSearch(p.displayName, p.desc) || matchesSearch(p.name));
 
   return (
-    <div className="flex-1 p-lg max-w-[1280px] mx-auto w-full h-full overflow-y-auto">
+    <div className="flex-1 p-lg max-w-[1280px] mx-auto w-full h-full overflow-y-auto bg-zinc-50/55">
       {/* Page Header */}
       <motion.div 
         initial={{ opacity: 0, y: -20 }}
@@ -103,8 +103,8 @@ export default function EncyclopediaPage() {
         className="mb-xl flex flex-col md:flex-row md:items-end justify-between gap-md"
       >
         <div>
-          <h2 className="font-headline-lg text-headline-lg text-zinc-900 dark:text-zinc-50 mb-xs tracking-tight font-bold bg-clip-text text-transparent bg-gradient-to-r from-zinc-900 to-zinc-500 dark:from-white dark:to-zinc-500">Pathogen Database</h2>
-          <p className="font-body-md text-body-md text-zinc-500 dark:text-zinc-400 max-w-2xl">
+          <h2 className="font-headline-lg text-headline-lg text-zinc-900 mb-xs tracking-tight font-bold bg-clip-text text-transparent bg-gradient-to-r from-zinc-950 to-zinc-600">Pathogen Database</h2>
+          <p className="font-body-md text-body-md text-zinc-650 max-w-2xl">
             A comprehensive technical index of waterborne diseases, cataloging biological agents, vectors, symptoms, and structural prevention methodologies.
           </p>
         </div>
@@ -112,7 +112,7 @@ export default function EncyclopediaPage() {
           <motion.button 
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="flex items-center gap-2 px-4 py-2 border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 rounded-lg font-label-md text-label-md hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-all shadow-sm"
+            className="flex items-center gap-2 px-4 py-2 border border-zinc-200 bg-white text-zinc-900 rounded-lg font-label-md text-label-md hover:bg-zinc-50 transition-all shadow-sm"
           >
             <span className="material-symbols-outlined text-sm">filter_list</span>
             Filter
@@ -120,7 +120,7 @@ export default function EncyclopediaPage() {
           <motion.button 
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="flex items-center gap-2 px-4 py-2 bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 rounded-lg font-label-md text-label-md hover:opacity-90 transition-all shadow-md hover:shadow-lg"
+            className="flex items-center gap-2 px-4 py-2 bg-zinc-900 text-white rounded-lg font-label-md text-label-md hover:opacity-90 transition-all shadow-md hover:shadow-lg"
           >
             <span className="material-symbols-outlined text-sm">download</span>
             Export Dataset
@@ -141,17 +141,17 @@ export default function EncyclopediaPage() {
               <motion.article 
                 key={pathogen.id}
                 variants={itemVariant}
-                className="col-span-1 lg:col-span-2 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-lg flex flex-col shadow-sm hover:shadow-md transition-shadow group relative overflow-hidden"
+                className="col-span-1 lg:col-span-2 bg-white border border-zinc-200 rounded-2xl p-lg flex flex-col shadow-sm hover:shadow-md transition-shadow group relative overflow-hidden"
               >
                 <div className="absolute top-0 right-0 w-64 h-64 bg-red-500/5 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none"></div>
-                <div className="flex justify-between items-start mb-md pb-md border-b border-zinc-100 dark:border-zinc-900 relative z-10">
+                <div className="flex justify-between items-start mb-md pb-md border-b border-zinc-100 relative z-10">
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-xl flex items-center justify-center border border-red-100 dark:border-red-900/50 shadow-inner">
+                    <div className="w-12 h-12 bg-red-50 text-red-600 rounded-xl flex items-center justify-center border border-red-100 shadow-inner">
                       <span className="material-symbols-outlined text-2xl">coronavirus</span>
                     </div>
                     <div>
-                      <h3 className="font-headline-md text-3xl font-bold text-zinc-900 dark:text-zinc-50 leading-none mb-1 group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors">{pathogen.displayName}</h3>
-                      <span className="font-label-md text-xs text-zinc-500 dark:text-zinc-400 uppercase tracking-widest font-semibold flex items-center gap-1">
+                      <h3 className="font-headline-md text-3xl font-bold text-zinc-900 leading-none mb-1 group-hover:text-red-600 transition-colors">{pathogen.displayName}</h3>
+                      <span className="font-label-md text-xs text-zinc-500 uppercase tracking-widest font-semibold flex items-center gap-1">
                         <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span> {pathogen.name}
                       </span>
                     </div>
@@ -162,21 +162,21 @@ export default function EncyclopediaPage() {
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-lg flex-1 relative z-10">
-                  <div className="bg-zinc-50 dark:bg-zinc-900/50 rounded-xl p-4 border border-zinc-100 dark:border-zinc-800/50">
-                    <h4 className="font-label-lg text-sm font-semibold text-zinc-900 dark:text-zinc-100 mb-3 flex items-center gap-2">
+                  <div className="bg-zinc-50 rounded-xl p-4 border border-zinc-150">
+                    <h4 className="font-label-lg text-sm font-semibold text-zinc-900 mb-3 flex items-center gap-2">
                       <span className="material-symbols-outlined text-sm text-zinc-400">medical_services</span> Clinical Symptoms
                     </h4>
-                    <ul className="font-body-md text-sm text-zinc-600 dark:text-zinc-400 space-y-2.5">
+                    <ul className="font-body-md text-sm text-zinc-650 space-y-2.5">
                       {pathogen.symptoms?.map((s, i) => (
                         <li key={i} className="flex items-start gap-2.5"><span className="material-symbols-outlined text-[16px] text-zinc-300 mt-0.5">check_circle</span> {s}</li>
                       ))}
                     </ul>
                   </div>
-                  <div className="bg-zinc-50 dark:bg-zinc-900/50 rounded-xl p-4 border border-zinc-100 dark:border-zinc-800/50">
-                    <h4 className="font-label-lg text-sm font-semibold text-zinc-900 dark:text-zinc-100 mb-3 flex items-center gap-2">
+                  <div className="bg-zinc-50 rounded-xl p-4 border border-zinc-150">
+                    <h4 className="font-label-lg text-sm font-semibold text-zinc-900 mb-3 flex items-center gap-2">
                       <span className="material-symbols-outlined text-sm text-zinc-400">shield</span> Prevention Protocols
                     </h4>
-                    <ul className="font-body-md text-sm text-zinc-600 dark:text-zinc-400 space-y-2.5">
+                    <ul className="font-body-md text-sm text-zinc-650 space-y-2.5">
                       {pathogen.prevention?.map((p, i) => (
                         <li key={i} className="flex items-start gap-2.5"><span className="material-symbols-outlined text-[16px] text-zinc-300 mt-0.5">check_circle</span> {p}</li>
                       ))}
@@ -184,8 +184,8 @@ export default function EncyclopediaPage() {
                   </div>
                 </div>
                 <div className="mt-lg pt-md flex justify-end gap-3 relative z-10">
-                  <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="px-5 py-2.5 border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-zinc-100 rounded-lg font-label-md text-sm font-medium hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-all">Technical Data</motion.button>
-                  <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="px-5 py-2.5 bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 rounded-lg font-label-md text-sm font-medium hover:opacity-90 transition-all shadow-md">View Profile</motion.button>
+                  <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="px-5 py-2.5 border border-zinc-200 text-zinc-900 rounded-lg font-label-md text-sm font-medium hover:bg-zinc-50 transition-all">Technical Data</motion.button>
+                  <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="px-5 py-2.5 bg-zinc-900 text-white rounded-lg font-label-md text-sm font-medium hover:opacity-90 transition-all shadow-md">View Profile</motion.button>
                 </div>
               </motion.article>
             );
@@ -196,32 +196,32 @@ export default function EncyclopediaPage() {
               <motion.article 
                 key={pathogen.id}
                 variants={itemVariant}
-                className="col-span-1 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-lg flex flex-col shadow-sm hover:shadow-md transition-shadow relative overflow-hidden"
+                className="col-span-1 bg-white border border-zinc-200 rounded-2xl p-lg flex flex-col shadow-sm hover:shadow-md transition-shadow relative overflow-hidden"
               >
                 <div className="absolute top-0 right-0 w-48 h-48 bg-amber-500/5 rounded-full blur-3xl -mr-24 -mt-24 pointer-events-none"></div>
-                <div className="flex justify-between items-start mb-md pb-md border-b border-zinc-100 dark:border-zinc-900 relative z-10">
+                <div className="flex justify-between items-start mb-md pb-md border-b border-zinc-100 relative z-10">
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-zinc-100 dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 rounded-xl flex items-center justify-center border border-zinc-200 dark:border-zinc-800">
+                    <div className="w-12 h-12 bg-zinc-50 text-zinc-650 rounded-xl flex items-center justify-center border border-zinc-200">
                       <span className="material-symbols-outlined text-2xl">bug_report</span>
                     </div>
                     <div>
-                      <h3 className="font-headline-md text-2xl font-bold text-zinc-900 dark:text-zinc-50 leading-none mb-1">{pathogen.displayName}</h3>
-                      <span className="font-label-md text-xs text-zinc-500 dark:text-zinc-400 uppercase tracking-widest font-semibold">{pathogen.name}</span>
+                      <h3 className="font-headline-md text-2xl font-bold text-zinc-900 leading-none mb-1">{pathogen.displayName}</h3>
+                      <span className="font-label-md text-xs text-zinc-500 uppercase tracking-widest font-semibold">{pathogen.name}</span>
                     </div>
                   </div>
                 </div>
                 <div className="flex-1 flex flex-col gap-6 relative z-10">
                   <div>
-                    <h4 className="font-label-lg text-sm font-semibold text-zinc-900 dark:text-zinc-100 mb-2">Symptoms</h4>
-                    <p className="font-body-md text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">{pathogen.desc}</p>
+                    <h4 className="font-label-lg text-sm font-semibold text-zinc-900 mb-2">Symptoms</h4>
+                    <p className="font-body-md text-sm text-zinc-650 leading-relaxed">{pathogen.desc}</p>
                   </div>
                   <div>
-                    <h4 className="font-label-lg text-sm font-semibold text-zinc-900 dark:text-zinc-100 mb-2">Vector Origin</h4>
-                    <p className="font-body-md text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">{pathogen.transmission}</p>
+                    <h4 className="font-label-lg text-sm font-semibold text-zinc-900 mb-2">Vector Origin</h4>
+                    <p className="font-body-md text-sm text-zinc-650 leading-relaxed">{pathogen.transmission}</p>
                   </div>
                 </div>
                 <div className="mt-lg pt-md relative z-10">
-                  <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="w-full px-4 py-2.5 bg-zinc-100 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 rounded-lg font-label-md text-sm font-medium hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-all">View Profile</motion.button>
+                  <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="w-full px-4 py-2.5 bg-zinc-100 text-zinc-900 rounded-lg font-label-md text-sm font-medium hover:bg-zinc-200 transition-all">View Profile</motion.button>
                 </div>
               </motion.article>
             );
@@ -233,15 +233,15 @@ export default function EncyclopediaPage() {
                 key={pathogen.id}
                 variants={itemVariant}
                 whileHover={{ y: -4 }}
-                className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-6 flex flex-col shadow-sm hover:shadow-md transition-shadow cursor-pointer group"
+                className="bg-white border border-zinc-200 rounded-2xl p-6 flex flex-col shadow-sm hover:shadow-md transition-shadow cursor-pointer group"
               >
                 <div className="flex justify-between items-center mb-2">
-                  <h3 className="font-headline-md text-lg font-bold text-zinc-900 dark:text-zinc-50">{pathogen.displayName}</h3>
-                  <span className="material-symbols-outlined text-zinc-400 group-hover:text-zinc-600 transition-colors">{pathogen.icon}</span>
+                  <h3 className="font-headline-md text-lg font-bold text-zinc-900">{pathogen.displayName}</h3>
+                  <span className="material-symbols-outlined text-zinc-400 group-hover:text-zinc-700 transition-colors">{pathogen.icon}</span>
                 </div>
-                <span className="font-label-md text-xs text-zinc-500 dark:text-zinc-400 mb-4 pb-3 border-b border-zinc-100 dark:border-zinc-900 block font-medium">{pathogen.name}</span>
-                <p className="font-body-md text-sm text-zinc-600 dark:text-zinc-400 flex-1 mb-6 leading-relaxed">{pathogen.desc}</p>
-                <button className="text-left font-label-md text-sm font-semibold text-zinc-900 dark:text-zinc-100 flex items-center gap-1.5 group-hover:gap-2 transition-all">
+                <span className="font-label-md text-xs text-zinc-500 mb-4 pb-3 border-b border-zinc-100 block font-medium">{pathogen.name}</span>
+                <p className="font-body-md text-sm text-zinc-600 flex-1 mb-6 leading-relaxed">{pathogen.desc}</p>
+                <button className="text-left font-label-md text-sm font-semibold text-zinc-900 flex items-center gap-1.5 group-hover:gap-2 transition-all">
                   Analysis <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
                 </button>
               </motion.article>
@@ -254,18 +254,18 @@ export default function EncyclopediaPage() {
                 key={pathogen.id}
                 variants={itemVariant}
                 whileHover={{ y: -4, scale: 1.02 }}
-                className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 flex flex-col relative overflow-hidden group shadow-md hover:shadow-xl transition-all cursor-pointer"
+                className="bg-white border border-zinc-200 rounded-2xl p-6 flex flex-col relative overflow-hidden group shadow-sm hover:shadow-md transition-all cursor-pointer"
               >
-                <div className="absolute inset-0 bg-cover bg-center opacity-20 group-hover:opacity-30 group-hover:scale-105 transition-all duration-700" style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuBWuAwvDctNDqe2DGiDBHLZNG4vzSpKuY67NoozS_cP_UaT_A3CyQgKNml26soKv5_pwPcyIgqW8a_orQUOEcnXpoDatpE8Ks5q0D58ja6Ae0lze-_h3Nu_mDcpz_57jfU8nP0HmhWL_Qs-3Y6GP3HN1wMeMIVasC-nUMrVNIkrgHs7hlEEBoIP_3u4H9EWSIOoEPJNB-yJaZt9jSRo4vQOlE_lA06030G3vATbDwq1_XR7286W1BHk2zz5t-y94Kow-4jBmXrwiEHi')" }}></div>
-                <div className="absolute inset-0 bg-gradient-to-t from-zinc-900 to-transparent"></div>
+                <div className="absolute inset-0 bg-cover bg-center opacity-30 group-hover:opacity-40 group-hover:scale-105 transition-all duration-700" style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuBWuAwvDctNDqe2DGiDBHLZNG4vzSpKuY67NoozS_cP_UaT_A3CyQgKNml26soKv5_pwPcyIgqW8a_orQUOEcnXpoDatpE8Ks5q0D58ja6Ae0lze-_h3Nu_mDcpz_57jfU8nP0HmhWL_Qs-3Y6GP3HN1wMeMIVasC-nUMrVNIkrgHs7hlEEBoIP_3u4H9EWSIOoEPJNB-yJaZt9jSRo4vQOlE_lA06030G3vATbDwq1_XR7286W1BHk2zz5t-y94Kow-4jBmXrwiEHi')" }}></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-white via-white/90 to-transparent"></div>
                 <div className="relative z-10 flex flex-col h-full">
                   <div className="flex justify-between items-center mb-2">
-                    <h3 className="font-headline-md text-lg font-bold text-white">{pathogen.displayName}</h3>
-                    <span className="material-symbols-outlined text-zinc-400 group-hover:text-white transition-colors">{pathogen.icon}</span>
+                    <h3 className="font-headline-md text-lg font-bold text-zinc-900">{pathogen.displayName}</h3>
+                    <span className="material-symbols-outlined text-zinc-500 group-hover:text-zinc-900 transition-colors">{pathogen.icon}</span>
                   </div>
-                  <span className="font-label-md text-xs text-zinc-300 mb-4 pb-3 border-b border-zinc-700 block font-medium">{pathogen.name}</span>
-                  <p className="font-body-md text-sm text-zinc-300 flex-1 mb-6 leading-relaxed">{pathogen.desc}</p>
-                  <button className="text-left font-label-md text-sm font-semibold text-white flex items-center gap-1.5 group-hover:gap-2 transition-all">
+                  <span className="font-label-md text-xs text-zinc-500 mb-4 pb-3 border-b border-zinc-200 block font-medium">{pathogen.name}</span>
+                  <p className="font-body-md text-sm text-zinc-750 flex-1 mb-6 leading-relaxed">{pathogen.desc}</p>
+                  <button className="text-left font-label-md text-sm font-semibold text-zinc-900 flex items-center gap-1.5 group-hover:gap-2 transition-all">
                     Analysis <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
                   </button>
                 </div>
