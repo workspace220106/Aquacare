@@ -5,13 +5,7 @@ const DATA_DIR = path.join(process.cwd(), 'data');
 const DIRECTIVES_PATH = path.join(DATA_DIR, 'directives.json');
 const LOGS_PATH = path.join(DATA_DIR, 'incident-logs.json');
 
-// Ensure data directory exists
-function ensureDataDir() {
-  if (!fs.existsSync(DATA_DIR)) {
-    fs.mkdirSync(DATA_DIR, { recursive: true });
-  }
-}
-
+// Initial defaults
 const DEFAULT_DIRECTIVES = {
   actionMatrix: [
     {
@@ -67,18 +61,43 @@ const DEFAULT_DIRECTIVES = {
   ]
 };
 
+// Global in-memory fallback for read-only systems like Vercel
+const globalForDb = global as any;
+if (!globalForDb._directives) {
+  globalForDb._directives = JSON.parse(JSON.stringify(DEFAULT_DIRECTIVES));
+}
+if (!globalForDb._incidentLogs) {
+  globalForDb._incidentLogs = [];
+}
+
+// Ensure data directory exists
+function ensureDataDir() {
+  try {
+    if (!fs.existsSync(DATA_DIR)) {
+      fs.mkdirSync(DATA_DIR, { recursive: true });
+    }
+  } catch (e) {
+    // Read-only filesystem (Vercel)
+  }
+}
+
 export function getDirectives() {
   ensureDataDir();
-  if (!fs.existsSync(DIRECTIVES_PATH)) {
-    fs.writeFileSync(DIRECTIVES_PATH, JSON.stringify(DEFAULT_DIRECTIVES, null, 2), 'utf-8');
-    return DEFAULT_DIRECTIVES;
-  }
   try {
+    if (!fs.existsSync(DIRECTIVES_PATH)) {
+      try {
+        fs.writeFileSync(DIRECTIVES_PATH, JSON.stringify(DEFAULT_DIRECTIVES, null, 2), 'utf-8');
+      } catch (e) {
+        // Read-only filesystem
+      }
+      return globalForDb._directives;
+    }
     const raw = fs.readFileSync(DIRECTIVES_PATH, 'utf-8');
-    return JSON.parse(raw);
+    const parsed = JSON.parse(raw);
+    globalForDb._directives = parsed;
+    return parsed;
   } catch (error) {
-    console.error('Error reading directives database, returning defaults', error);
-    return DEFAULT_DIRECTIVES;
+    return globalForDb._directives;
   }
 }
 
@@ -101,22 +120,34 @@ export function saveDirective(directive: { title: string; status: string; enforc
   };
 
   db.systemicDirectives.push(newDirective);
-  fs.writeFileSync(DIRECTIVES_PATH, JSON.stringify(db, null, 2), 'utf-8');
+  globalForDb._directives = db; // Sync in-memory
+
+  try {
+    fs.writeFileSync(DIRECTIVES_PATH, JSON.stringify(db, null, 2), 'utf-8');
+  } catch (error) {
+    console.warn('FS write failed, fell back to in-memory storage (this is normal on Vercel EROFS):', error);
+  }
+
   return newDirective;
 }
 
 export function getIncidentLogs() {
   ensureDataDir();
-  if (!fs.existsSync(LOGS_PATH)) {
-    fs.writeFileSync(LOGS_PATH, JSON.stringify([], null, 2), 'utf-8');
-    return [];
-  }
   try {
+    if (!fs.existsSync(LOGS_PATH)) {
+      try {
+        fs.writeFileSync(LOGS_PATH, JSON.stringify([], null, 2), 'utf-8');
+      } catch (e) {
+        // Read-only filesystem
+      }
+      return globalForDb._incidentLogs;
+    }
     const raw = fs.readFileSync(LOGS_PATH, 'utf-8');
-    return JSON.parse(raw);
+    const parsed = JSON.parse(raw);
+    globalForDb._incidentLogs = parsed;
+    return parsed;
   } catch (error) {
-    console.error('Error reading incident logs database', error);
-    return [];
+    return globalForDb._incidentLogs;
   }
 }
 
@@ -133,6 +164,13 @@ export function saveIncidentLog(log: { vector: string; coordinates: string; seve
     timestamp: new Date().toISOString()
   };
   logs.push(newLog);
-  fs.writeFileSync(LOGS_PATH, JSON.stringify(logs, null, 2), 'utf-8');
+  globalForDb._incidentLogs = logs; // Sync in-memory
+
+  try {
+    fs.writeFileSync(LOGS_PATH, JSON.stringify(logs, null, 2), 'utf-8');
+  } catch (error) {
+    console.warn('FS write failed, fell back to in-memory storage (this is normal on Vercel EROFS):', error);
+  }
+
   return newLog;
 }
