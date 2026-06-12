@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { exportToCSV } from '@/lib/csv-export';
 
 export default function HomePage() {
   const [data, setData] = useState<any[]>([]);
@@ -29,6 +30,35 @@ export default function HomePage() {
   const avgScore = totalSites > 0 ? (data.reduce((acc, curr) => acc + curr.quality_score, 0) / totalSites).toFixed(1) : '94.2';
   const criticalAlerts = data.filter(d => d.quality_score < 70);
 
+  const handleExport = () => {
+    if (!data || data.length === 0) {
+      alert('No data available to export.');
+      return;
+    }
+    const headers = [
+      'Station ID', 'Location', 'State', 'Latitude', 'Longitude', 
+      'pH', 'Temperature (C)', 'Dissolved Oxygen (mg/L)', 'Turbidity (NTU)', 
+      'Specific Conductance', 'Flow Rate', 'Quality Score', 'Status', 'Last Updated'
+    ];
+    const rows = data.map(item => [
+      item.id,
+      item.location,
+      item.state,
+      item.coordinates?.lat,
+      item.coordinates?.lng,
+      item.metrics?.ph,
+      item.metrics?.temperature,
+      item.metrics?.dissolved_oxygen,
+      item.metrics?.turbidity,
+      item.metrics?.specific_conductance,
+      item.metrics?.flow_rate,
+      item.quality_score,
+      item.status,
+      item.lastUpdated
+    ]);
+    exportToCSV('aquacare_dashboard_telemetry.csv', headers, rows);
+  };
+
   return (
     <div className="p-margin max-w-[1280px] mx-auto space-y-gutter">
       {/* Page Header */}
@@ -43,16 +73,15 @@ export default function HomePage() {
           <p className="font-body-md text-body-md text-on-surface-variant mt-2">Real-time telemetry and analytical intelligence.</p>
         </div>
         <div className="flex gap-sm">
-          <Link href="/explorer">
-            <motion.div 
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="border border-outline bg-surface-container-lowest text-on-surface px-md py-sm rounded hover:bg-surface-container transition-colors font-label-lg text-label-lg flex items-center gap-2 cursor-pointer pointer-events-auto"
-            >
-              <span className="material-symbols-outlined text-[18px]">download</span>
-              Export Data
-            </motion.div>
-          </Link>
+          <motion.button 
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={handleExport}
+            className="border border-outline bg-surface-container-lowest text-on-surface px-md py-sm rounded hover:bg-surface-container transition-colors font-label-lg text-label-lg flex items-center gap-2 cursor-pointer pointer-events-auto"
+          >
+            <span className="material-symbols-outlined text-[18px]">download</span>
+            Export Data
+          </motion.button>
           <Link href="/explorer">
             <motion.div 
               whileHover={{ scale: 1.05 }}

@@ -138,6 +138,66 @@ export default function PreventionPage() {
     fetchData();
   }, []);
 
+  const handleExport = () => {
+    const directivesList = data?.systemicDirectives || [];
+    const directivesHeaders = ['Directive ID', 'Target Policy', 'Status', 'Enforcement'];
+    const directivesRows = directivesList.map((dir: any) => [
+      dir.id,
+      dir.title,
+      dir.status,
+      dir.enforcement
+    ]);
+
+    const logsList = logs || [];
+    const logsHeaders = ['Log ID', 'Vector', 'Severity', 'Coordinates', 'Timestamp', 'Notes'];
+    const logsRows = logsList.map((log: any) => [
+      log.id,
+      log.vector,
+      log.severity,
+      log.coordinates,
+      log.timestamp,
+      log.notes || ''
+    ]);
+
+    const csvContent = [
+      '=== SYSTEMIC POLICY DIRECTIVES ===',
+      directivesHeaders.join(','),
+      ...directivesRows.map((row: any[]) => 
+        row.map((val: any) => {
+          const stringVal = String(val === null || val === undefined ? '' : val);
+          const escaped = stringVal.replace(/"/g, '""');
+          if (escaped.includes(',') || escaped.includes('\n') || escaped.includes('"')) {
+            return `"${escaped}"`;
+          }
+          return escaped;
+        }).join(',')
+      ),
+      '', 
+      '=== ACTIVE INCIDENT TELEMETRY ===',
+      logsHeaders.join(','),
+      ...logsRows.map((row: any[]) => 
+        row.map((val: any) => {
+          const stringVal = String(val === null || val === undefined ? '' : val);
+          const escaped = stringVal.replace(/"/g, '""');
+          if (escaped.includes(',') || escaped.includes('\n') || escaped.includes('"')) {
+            return `"${escaped}"`;
+          }
+          return escaped;
+        }).join(',')
+      )
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'aquacare_prevention_matrix.csv');
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const handleLogSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!vector || vector === 'Select Vector...' || !coordinates || !notes) {
@@ -240,6 +300,7 @@ export default function PreventionPage() {
             <motion.button 
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
+              onClick={handleExport}
               className="font-label-lg text-label-lg px-md py-sm border border-outline text-on-surface rounded-lg hover:bg-surface-container transition-colors flex items-center gap-2"
             >
               <span className="material-symbols-outlined text-[18px]">download</span>
