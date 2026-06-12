@@ -7,7 +7,9 @@ import { exportToCSV } from '@/lib/csv-export';
 
 export default function HomePage() {
   const [data, setData] = useState<any[]>([]);
+  const [latencies, setLatencies] = useState<any>({ usgs: 250, india: 140, world: 190 });
   const [loading, setLoading] = useState(true);
+  const [selectedRegion, setSelectedRegion] = useState<'All' | 'India' | 'USA' | 'World'>('All');
 
   useEffect(() => {
     async function fetchData() {
@@ -16,6 +18,9 @@ export default function HomePage() {
         const json = await res.json();
         if (json.success) {
           setData(json.data || []);
+          if (json.latencies) {
+            setLatencies(json.latencies);
+          }
         }
       } catch (err) {
         console.error('Error fetching data', err);
@@ -26,24 +31,32 @@ export default function HomePage() {
     fetchData();
   }, []);
 
-  const totalSites = data.length;
-  const avgScore = totalSites > 0 ? (data.reduce((acc, curr) => acc + curr.quality_score, 0) / totalSites).toFixed(1) : '94.2';
-  const criticalAlerts = data.filter(d => d.quality_score < 70);
+  // Filter data based on selected region
+  const filteredData = data.filter(item => {
+    if (selectedRegion === 'All') return true;
+    return item.region === selectedRegion;
+  });
+
+  const totalSites = filteredData.length;
+  const avgScore = totalSites > 0 ? (filteredData.reduce((acc, curr) => acc + curr.quality_score, 0) / totalSites).toFixed(1) : '94.2';
+  const criticalAlerts = filteredData.filter(d => d.quality_score < 70);
 
   const handleExport = () => {
-    if (!data || data.length === 0) {
+    const exportData = filteredData.length > 0 ? filteredData : data;
+    if (!exportData || exportData.length === 0) {
       alert('No data available to export.');
       return;
     }
     const headers = [
-      'Station ID', 'Location', 'State', 'Latitude', 'Longitude', 
+      'Station ID', 'Location', 'State', 'Region', 'Latitude', 'Longitude', 
       'pH', 'Temperature (C)', 'Dissolved Oxygen (mg/L)', 'Turbidity (NTU)', 
       'Specific Conductance', 'Flow Rate', 'Quality Score', 'Status', 'Last Updated'
     ];
-    const rows = data.map(item => [
+    const rows = exportData.map(item => [
       item.id,
       item.location,
       item.state,
+      item.region,
       item.coordinates?.lat,
       item.coordinates?.lng,
       item.metrics?.ph,
@@ -56,7 +69,7 @@ export default function HomePage() {
       item.status,
       item.lastUpdated
     ]);
-    exportToCSV('aquacare_dashboard_telemetry.csv', headers, rows);
+    exportToCSV(`aquacare_dashboard_${selectedRegion.toLowerCase()}_telemetry.csv`, headers, rows);
   };
 
   return (
@@ -66,13 +79,13 @@ export default function HomePage() {
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 0.1 }}
-        className="flex justify-between items-end mb-lg"
+        className="flex flex-col md:flex-row justify-between items-start md:items-end gap-md mb-lg border-b border-outline-variant pb-md"
       >
         <div>
           <h2 className="font-headline-lg text-headline-lg tracking-tight text-on-background">System Overview</h2>
           <p className="font-body-md text-body-md text-on-surface-variant mt-2">Real-time telemetry and analytical intelligence.</p>
         </div>
-        <div className="flex gap-sm">
+        <div className="flex gap-sm w-full md:w-auto mt-4 md:mt-0">
           <motion.button 
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -94,6 +107,58 @@ export default function HomePage() {
           </Link>
         </div>
       </motion.div>
+
+      {/* Region Switcher Bar & Latency Widget */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-md border-b border-outline-variant/30 pb-sm mb-md">
+        {/* Tab switchers */}
+        <div className="flex gap-2 bg-surface-container-lowest p-1 rounded-lg border border-outline-variant shadow-sm">
+          {[
+            { id: 'All', label: 'All Regions' },
+            { id: 'India', label: 'India' },
+            { id: 'USA', label: 'United States' },
+            { id: 'World', label: 'Global Basins' }
+          ].map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setSelectedRegion(tab.id as any)}
+              className={`px-4 py-1.5 rounded-md text-xs font-label-lg transition-all cursor-pointer font-bold ${
+                selectedRegion === tab.id
+                  ? 'bg-zinc-900 text-white shadow-sm'
+                  : 'text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Live latency checklist */}
+        <div className="flex gap-md items-center text-xs text-zinc-500 flex-wrap">
+          <span className="flex items-center gap-1.5">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#10b981] opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#10b981]"></span>
+            </span>
+            USGS Feed: <strong className="text-zinc-800 font-bold">{loading ? '...' : `${latencies.usgs}ms`}</strong>
+          </span>
+          <span className="border-l border-zinc-200 h-4 hidden sm:block"></span>
+          <span className="flex items-center gap-1.5">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#10b981] opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#10b981]"></span>
+            </span>
+            India Feed: <strong className="text-zinc-800 font-bold">{loading ? '...' : `${latencies.india}ms`}</strong>
+          </span>
+          <span className="border-l border-zinc-200 h-4 hidden sm:block"></span>
+          <span className="flex items-center gap-1.5">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#10b981] opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#10b981]"></span>
+            </span>
+            World Feed: <strong className="text-zinc-800 font-bold">{loading ? '...' : `${latencies.world}ms`}</strong>
+          </span>
+        </div>
+      </div>
 
       {/* Bento Grid Layout */}
       <div className="grid grid-cols-12 gap-gutter">
@@ -162,7 +227,10 @@ export default function HomePage() {
             </div>
             <div className="mt-4 flex items-center gap-2 text-secondary-container font-label-md text-label-md bg-secondary-fixed/30 px-2 py-1 rounded w-max border border-secondary-fixed">
               <span className="material-symbols-outlined text-[14px]">trending_up</span>
-              Live USGS Feed
+              {selectedRegion === 'All' ? 'Combined Telemetry Feed' : 
+               selectedRegion === 'USA' ? 'Live USGS Feed' : 
+               selectedRegion === 'India' ? 'Live Open-Meteo India Feed' : 
+               'Live Open-Meteo World Feed'}
             </div>
           </div>
           {/* Minimalist Bar Chart Placeholder */}
@@ -259,11 +327,23 @@ export default function HomePage() {
               src="https://lh3.googleusercontent.com/aida-public/AB6AXuDR-uc_FehYBEUdG-ynJuTudxCucFuyrM008p_dQ2TowY5Ud8u_rG2yG3w4yE6FUEYUfiFUD9e_qa2LjbdhFqMLHGC2jm_Qt1PKlwp0AwhKbNU-VhraA-1lJ_cFlcbXWU0subKIV6rh5vHsW2WmfglGc6D0Of_deI6Y9vxXztz5NAR2izXaHyBZ9WAx8CX9FdtgQq3194LVo6joDXgvia9a_67_ljhuvZF-egOtZKu_ZUyUMwciTGbLxYw86C2R-yuJYrFmrpGRgt4p"
             />
             {/* Overlay Tech Elements */}
-            {!loading && data.slice(0, 10).map((site, i) => {
-              const top = 60 - ((site.coordinates.lat - 25) * 1.5);
-              const left = ((site.coordinates.lng + 125) * 1.5);
-              const boundedTop = Math.max(10, Math.min(90, top));
-              const boundedLeft = Math.max(10, Math.min(90, left));
+            {!loading && filteredData.slice(0, 15).map((site, i) => {
+              let top = 50;
+              let left = 50;
+              
+              if (site.region === 'India') {
+                top = 90 - ((site.coordinates.lat - 8) * 2.8);
+                left = ((site.coordinates.lng - 68) * 3.1);
+              } else if (site.region === 'USA') {
+                top = 80 - ((site.coordinates.lat - 24) * 2.8);
+                left = ((site.coordinates.lng + 125) * 1.5);
+              } else {
+                top = 70 - ((site.coordinates.lat + 60) * 0.7);
+                left = ((site.coordinates.lng + 120) * 0.4);
+              }
+              
+              const boundedTop = Math.max(8, Math.min(92, top));
+              const boundedLeft = Math.max(8, Math.min(92, left));
               const isError = site.quality_score < 70;
               
               return (
@@ -273,6 +353,7 @@ export default function HomePage() {
                   transition={{ repeat: Infinity, duration: 2 + (i % 3) }} 
                   className={`absolute w-3 h-3 ${isError ? 'bg-error ring-error/20' : 'bg-primary ring-primary/20'} rounded-full ring-4`}
                   style={{ top: `${boundedTop}%`, left: `${boundedLeft}%` }}
+                  title={`${site.location} (${site.region})`}
                 />
               )
             })}
