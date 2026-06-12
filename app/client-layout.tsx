@@ -15,7 +15,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
       <motion.main 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="flex-1 ml-64 pt-16 min-h-[1024px] bg-background bg-grid-pattern relative z-10"
+        className="flex-1 ml-0 pt-16 px-4 md:px-8 min-h-[1024px] bg-background bg-grid-pattern relative z-10"
       >
         <AnimatePresence mode="popLayout" initial={false}>
           <motion.div
