@@ -5,22 +5,109 @@ import { useState, useEffect } from 'react';
 
 export default function PreventionPage() {
   const [data, setData] = useState<any>(null);
+  const [logs, setLogs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const res = await fetch('/api/directives');
-        const json = await res.json();
-        if (json.success) setData(json.data);
-      } catch (err) {
-        console.error('Error fetching directives', err);
-      } finally {
-        setLoading(false);
-      }
+  // Form states for Incident Log
+  const [vector, setVector] = useState('');
+  const [coordinates, setCoordinates] = useState('');
+  const [severity, setSeverity] = useState('ELEVATED');
+  const [notes, setNotes] = useState('');
+  const [submittingLog, setSubmittingLog] = useState(false);
+
+  // Form states for Add Directive
+  const [showAddDirective, setShowAddDirective] = useState(false);
+  const [dirTitle, setDirTitle] = useState('');
+  const [dirStatus, setDirStatus] = useState('Drafting');
+  const [dirEnforcement, setDirEnforcement] = useState('');
+  const [submittingDir, setSubmittingDir] = useState(false);
+
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const [directivesRes, logsRes] = await Promise.all([
+        fetch('/api/directives'),
+        fetch('/api/incident-logs')
+      ]);
+      const directivesJson = await directivesRes.json();
+      const logsJson = await logsRes.json();
+      if (directivesJson.success) setData(directivesJson.data);
+      if (logsJson.success) setLogs(logsJson.data);
+    } catch (err) {
+      console.error('Error fetching prevention data', err);
+    } finally {
+      setLoading(false);
     }
+  };
+
+  useEffect(() => {
     fetchData();
   }, []);
+
+  const handleLogSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!vector || vector === 'Select Vector...' || !coordinates || !notes) {
+      alert('Please fill in all fields.');
+      return;
+    }
+    setSubmittingLog(true);
+    try {
+      const res = await fetch('/api/incident-logs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ vector, coordinates, severity, notes })
+      });
+      const json = await res.json();
+      if (json.success) {
+        setLogs(prev => [...prev, json.data]);
+        // Reset form
+        setVector('');
+        setCoordinates('');
+        setSeverity('ELEVATED');
+        setNotes('');
+      } else {
+        alert('Failed to log incident: ' + json.error);
+      }
+    } catch (err) {
+      console.error('Error logging incident', err);
+    } finally {
+      setSubmittingLog(false);
+    }
+  };
+
+  const handleDirectiveSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!dirTitle) {
+      alert('Please enter a directive title.');
+      return;
+    }
+    setSubmittingDir(true);
+    try {
+      const res = await fetch('/api/directives', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: dirTitle, status: dirStatus, enforcement: dirEnforcement })
+      });
+      const json = await res.json();
+      if (json.success) {
+        setData((prev: any) => ({
+          ...prev,
+          systemicDirectives: [...prev.systemicDirectives, json.data]
+        }));
+        // Reset form
+        setDirTitle('');
+        setDirStatus('Drafting');
+        setDirEnforcement('');
+        setShowAddDirective(false);
+      } else {
+        alert('Failed to add directive: ' + json.error);
+      }
+    } catch (err) {
+      console.error('Error adding directive', err);
+    } finally {
+      setSubmittingDir(false);
+    }
+  };
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -136,8 +223,79 @@ export default function PreventionPage() {
                   <span className="material-symbols-outlined text-primary">gavel</span>
                   <h3 className="font-headline-md text-headline-md text-on-background text-xl">Systemic Policy Directives</h3>
                 </div>
-                <button className="font-label-md text-label-md text-primary hover:text-on-tertiary-container transition-colors">VIEW ARCHIVE</button>
+                <div className="flex gap-2">
+                  <button 
+                    onClick={() => setShowAddDirective(!showAddDirective)}
+                    className="font-label-md text-label-md bg-zinc-900 text-white hover:bg-zinc-800 transition-colors px-3 py-1.5 rounded-lg flex items-center gap-1 cursor-pointer font-bold text-xs"
+                  >
+                    <span className="material-symbols-outlined text-[16px]">{showAddDirective ? 'close' : 'add'}</span>
+                    {showAddDirective ? 'CANCEL' : 'ADD DIRECTIVE'}
+                  </button>
+                </div>
               </div>
+
+              {/* Add Directive Inline Form */}
+              {showAddDirective && (
+                <motion.div 
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  className="bg-zinc-50 border border-outline-variant p-md rounded-lg mb-md shadow-inner"
+                >
+                  <h4 className="font-label-lg text-label-lg font-bold text-on-background mb-sm text-sm uppercase">Create Systemic Directive</h4>
+                  <form onSubmit={handleDirectiveSubmit} className="grid grid-cols-1 md:grid-cols-3 gap-md items-end">
+                    <div className="md:col-span-2 flex flex-col gap-xs">
+                      <label className="text-xs uppercase font-label-md text-on-surface font-semibold">Target Policy Title</label>
+                      <input 
+                        type="text"
+                        value={dirTitle}
+                        onChange={e => setDirTitle(e.target.value)}
+                        placeholder="e.g. Municipal Water Lead Filtration Cap"
+                        className="bg-white border border-outline-variant text-on-surface text-sm p-sm rounded-lg focus:outline-none focus:border-primary w-full"
+                        required
+                      />
+                    </div>
+                    <div className="flex flex-col gap-xs">
+                      <label className="text-xs uppercase font-label-md text-on-surface font-semibold">Status</label>
+                      <select 
+                        value={dirStatus}
+                        onChange={e => setDirStatus(e.target.value)}
+                        className="bg-white border border-outline-variant text-on-surface text-sm p-sm rounded-lg focus:outline-none focus:border-primary w-full"
+                      >
+                        <option>Drafting</option>
+                        <option>Enforced</option>
+                        <option>Auditing</option>
+                      </select>
+                    </div>
+                    <div className="flex flex-col gap-xs">
+                      <label className="text-xs uppercase font-label-md text-on-surface font-semibold">Enforcement Timeline</label>
+                      <input 
+                        type="text"
+                        value={dirEnforcement}
+                        onChange={e => setDirEnforcement(e.target.value)}
+                        placeholder="e.g. Q4 2026 or TBD"
+                        className="bg-white border border-outline-variant text-on-surface text-sm p-sm rounded-lg focus:outline-none focus:border-primary w-full"
+                      />
+                    </div>
+                    <div className="md:col-span-3 flex gap-sm justify-end">
+                      <button 
+                        type="button"
+                        onClick={() => setShowAddDirective(false)}
+                        className="px-4 py-2 border border-outline-variant rounded-lg text-xs font-label-lg text-on-surface hover:bg-zinc-150 transition-colors"
+                      >
+                        Cancel
+                      </button>
+                      <button 
+                        type="submit"
+                        disabled={submittingDir}
+                        className="px-4 py-2 bg-zinc-900 text-white rounded-lg text-xs font-label-lg hover:bg-zinc-800 transition-colors disabled:opacity-55 font-bold"
+                      >
+                        {submittingDir ? 'Saving...' : 'Save Directive'}
+                      </button>
+                    </div>
+                  </form>
+                </motion.div>
+              )}
+
               <div className="bg-surface-container-lowest border border-outline-variant rounded-lg overflow-hidden shadow-sm">
                 {/* Table Header */}
                 <div className="grid grid-cols-12 gap-sm p-sm bg-surface border-b border-outline-variant font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">
@@ -147,30 +305,81 @@ export default function PreventionPage() {
                   <div className="col-span-2 text-right">Enforcement</div>
                 </div>
                 {/* Rows */}
-                <motion.div whileHover={{ backgroundColor: 'rgba(0,0,0,0.02)' }} className="grid grid-cols-12 gap-sm p-sm items-center border-b border-outline-variant transition-colors font-body-md text-body-md text-sm cursor-pointer">
-                  <div className="col-span-3 font-label-lg text-on-background">{loading ? 'DIR-2024-A1' : data?.systemicDirectives[0]?.id || 'DIR-2024-A1'}</div>
-                  <div className="col-span-5 text-on-surface line-clamp-1">{loading ? 'Agricultural Runoff Phosphorus Cap Implementation' : data?.systemicDirectives[0]?.title}</div>
-                  <div className="col-span-2 flex items-center">
-                    <span className={`inline-block w-2 h-2 rounded-full mr-2 ${loading ? 'bg-secondary' : data?.systemicDirectives[0]?.statusDot}`}></span>{loading ? 'Enforced' : data?.systemicDirectives[0]?.status}
-                  </div>
-                  <div className="col-span-2 text-right font-label-md text-on-surface-variant">{loading ? 'Q2 2024' : data?.systemicDirectives[0]?.enforcement}</div>
-                </motion.div>
-                <motion.div whileHover={{ backgroundColor: 'rgba(0,0,0,0.02)' }} className="grid grid-cols-12 gap-sm p-sm items-center border-b border-outline-variant transition-colors font-body-md text-body-md text-sm cursor-pointer">
-                  <div className="col-span-3 font-label-lg text-on-background">{loading ? 'DIR-2024-B4' : data?.systemicDirectives[1]?.id || 'DIR-2024-B4'}</div>
-                  <div className="col-span-5 text-on-surface line-clamp-1">{loading ? 'Municipal Infrastructure Modernization Mandate' : data?.systemicDirectives[1]?.title}</div>
-                  <div className="col-span-2 flex items-center">
-                    <span className={`inline-block w-2 h-2 rounded-full mr-2 ${loading ? 'bg-primary-fixed-dim' : data?.systemicDirectives[1]?.statusDot}`}></span>{loading ? 'Drafting' : data?.systemicDirectives[1]?.status}
-                  </div>
-                  <div className="col-span-2 text-right font-label-md text-on-surface-variant">{loading ? 'TBD' : data?.systemicDirectives[1]?.enforcement}</div>
-                </motion.div>
-                <motion.div whileHover={{ backgroundColor: 'rgba(0,0,0,0.02)' }} className="grid grid-cols-12 gap-sm p-sm items-center transition-colors font-body-md text-body-md text-sm cursor-pointer">
-                  <div className="col-span-3 font-label-lg text-on-background">{loading ? 'DIR-2023-F9' : data?.systemicDirectives[2]?.id || 'DIR-2023-F9'}</div>
-                  <div className="col-span-5 text-on-surface line-clamp-1">{loading ? 'Industrial Effluent Thermal Regulation' : data?.systemicDirectives[2]?.title}</div>
-                  <div className="col-span-2 flex items-center">
-                    <span className={`inline-block w-2 h-2 rounded-full mr-2 ${loading ? 'bg-outline' : data?.systemicDirectives[2]?.statusDot}`}></span>{loading ? 'Auditing' : data?.systemicDirectives[2]?.status}
-                  </div>
-                  <div className="col-span-2 text-right font-label-md text-on-surface-variant">{loading ? 'Q4 2023' : data?.systemicDirectives[2]?.enforcement}</div>
-                </motion.div>
+                {loading ? (
+                  <div className="p-md text-center text-on-surface-variant font-body-md text-sm">Loading systemic directives...</div>
+                ) : !data || data.systemicDirectives?.length === 0 ? (
+                  <div className="p-md text-center text-on-surface-variant font-body-md text-sm">No systemic directives logged.</div>
+                ) : (
+                  data.systemicDirectives.map((dir: any, idx: number) => (
+                    <motion.div 
+                      key={dir.id || idx}
+                      whileHover={{ backgroundColor: 'rgba(0,0,0,0.02)' }} 
+                      className="grid grid-cols-12 gap-sm p-sm items-center border-b border-outline-variant last:border-b-0 transition-colors font-body-md text-body-md text-sm cursor-pointer"
+                    >
+                      <div className="col-span-3 font-label-lg text-on-background font-bold">{dir.id}</div>
+                      <div className="col-span-5 text-on-surface line-clamp-1" title={dir.title}>{dir.title}</div>
+                      <div className="col-span-2 flex items-center">
+                        <span className={`inline-block w-2 h-2 rounded-full mr-2 ${dir.statusDot}`}></span>{dir.status}
+                      </div>
+                      <div className="col-span-2 text-right font-label-md text-on-surface-variant">{dir.enforcement}</div>
+                    </motion.div>
+                  ))
+                )}
+              </div>
+            </motion.section>
+
+            {/* Section: Logged Incident Telemetry */}
+            <motion.section 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.45 }}
+              className="mt-lg"
+            >
+              <div className="flex items-center gap-2 mb-md">
+                <span className="material-symbols-outlined text-secondary">assignment_late</span>
+                <h3 className="font-headline-md text-headline-md text-on-background text-xl">Logged Incident Telemetry</h3>
+              </div>
+              <div className="bg-surface border border-outline-variant rounded-lg overflow-hidden shadow-sm">
+                {/* Table Header */}
+                <div className="grid grid-cols-12 gap-sm p-sm bg-surface border-b border-outline-variant font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">
+                  <div className="col-span-3">Log ID</div>
+                  <div className="col-span-3">Vector</div>
+                  <div className="col-span-2">Severity</div>
+                  <div className="col-span-2">Coordinates</div>
+                  <div className="col-span-2 text-right">Timestamp</div>
+                </div>
+                {/* Rows */}
+                {loading ? (
+                  <div className="p-md text-center text-on-surface-variant font-body-md text-sm">Loading incident telemetry...</div>
+                ) : logs.length === 0 ? (
+                  <div className="p-md text-center text-on-surface-variant font-body-md text-sm">No incidents initiated. Submit the form on the right to start logging.</div>
+                ) : (
+                  [...logs].reverse().map((log: any, idx: number) => (
+                    <div 
+                      key={log.id || idx}
+                      className="grid grid-cols-12 gap-sm p-sm items-center border-b border-outline-variant/30 last:border-b-0 font-body-md text-body-md text-sm"
+                    >
+                      <div className="col-span-3 font-label-lg text-on-background font-bold text-xs truncate" title={log.id}>{log.id}</div>
+                      <div className="col-span-3 text-on-surface truncate font-semibold" title={log.vector}>{log.vector}</div>
+                      <div className="col-span-2">
+                        <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
+                          log.severity === 'CRITICAL' ? 'bg-red-100 text-red-800 border border-red-200' :
+                          log.severity === 'ELEVATED' ? 'bg-yellow-100 text-yellow-800 border border-yellow-250' :
+                          'bg-green-100 text-green-800 border border-green-200'
+                        }`}>
+                          {log.severity}
+                        </span>
+                      </div>
+                      <div className="col-span-2 text-on-surface-variant text-xs truncate" title={log.coordinates}>{log.coordinates}</div>
+                      <div className="col-span-2 text-right font-label-md text-on-surface-variant text-xs">{new Date(log.timestamp).toLocaleTimeString()}</div>
+                      {log.notes && (
+                        <div className="col-span-12 mt-1 bg-zinc-50 p-2 rounded text-xs text-zinc-650 border border-zinc-150">
+                          <strong>Field Notes:</strong> {log.notes}
+                        </div>
+                      )}
+                    </div>
+                  ))
+                )}
               </div>
             </motion.section>
           </div>
@@ -191,16 +400,21 @@ export default function PreventionPage() {
                 Submit raw field data for immediate heuristic analysis. High-severity reports bypass standard queue.
               </p>
               
-              <form className="flex flex-col gap-md">
+              <form onSubmit={handleLogSubmit} className="flex flex-col gap-md">
                 <div>
                   <label className="block font-label-md text-label-md text-on-surface mb-xs uppercase tracking-wider">Classification Vector</label>
                   <div className="relative">
-                    <select className="w-full bg-surface-container-lowest border border-outline-variant text-on-surface font-body-md text-body-md p-sm rounded-lg appearance-none focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all">
-                      <option>Select Vector...</option>
-                      <option>Biological Contamination</option>
-                      <option>Chemical/Industrial Spill</option>
-                      <option>Infrastructure Failure</option>
-                      <option>Anomalous Reading (Sensor)</option>
+                    <select 
+                      value={vector}
+                      onChange={e => setVector(e.target.value)}
+                      className="w-full bg-surface-container-lowest border border-outline-variant text-on-surface font-body-md text-body-md p-sm rounded-lg appearance-none focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+                      required
+                    >
+                      <option value="">Select Vector...</option>
+                      <option value="Biological Contamination">Biological Contamination</option>
+                      <option value="Chemical/Industrial Spill">Chemical/Industrial Spill</option>
+                      <option value="Infrastructure Failure">Infrastructure Failure</option>
+                      <option value="Anomalous Reading (Sensor)">Anomalous Reading (Sensor)</option>
                     </select>
                     <span className="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-outline pointer-events-none">expand_more</span>
                   </div>
@@ -208,22 +422,50 @@ export default function PreventionPage() {
                 
                 <div>
                   <label className="block font-label-md text-label-md text-on-surface mb-xs uppercase tracking-wider">Geospatial Coordinates</label>
-                  <input className="w-full bg-surface-container-lowest border border-outline-variant text-on-surface font-body-md text-body-md p-sm rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-outline-variant" placeholder="e.g. 40.7128° N, 74.0060° W or Address" type="text" />
+                  <input 
+                    className="w-full bg-surface-container-lowest border border-outline-variant text-on-surface font-body-md text-body-md p-sm rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-outline-variant" 
+                    placeholder="e.g. 40.7128° N, 74.0060° W or Address" 
+                    type="text" 
+                    value={coordinates}
+                    onChange={e => setCoordinates(e.target.value)}
+                    required
+                  />
                 </div>
                 
                 <div>
                   <label className="block font-label-md text-label-md text-on-surface mb-xs uppercase tracking-wider">Severity Matrix</label>
                   <div className="flex gap-2 flex-wrap">
                     <label className="cursor-pointer">
-                      <input className="peer sr-only" name="severity" type="radio" />
+                      <input 
+                        className="peer sr-only" 
+                        name="severity" 
+                        type="radio" 
+                        value="LOW"
+                        checked={severity === 'LOW'}
+                        onChange={() => setSeverity('LOW')}
+                      />
                       <span className="font-label-md text-label-md px-3 py-1.5 border border-outline-variant rounded bg-surface-container-lowest text-on-surface peer-checked:bg-primary peer-checked:text-on-primary peer-checked:border-primary transition-colors block">LOW</span>
                     </label>
                     <label className="cursor-pointer">
-                      <input className="peer sr-only" name="severity" type="radio" defaultChecked />
+                      <input 
+                        className="peer sr-only" 
+                        name="severity" 
+                        type="radio" 
+                        value="ELEVATED"
+                        checked={severity === 'ELEVATED'}
+                        onChange={() => setSeverity('ELEVATED')}
+                      />
                       <span className="font-label-md text-label-md px-3 py-1.5 border border-outline-variant rounded bg-surface-container-lowest text-on-surface peer-checked:bg-primary peer-checked:text-on-primary peer-checked:border-primary transition-colors block">ELEVATED</span>
                     </label>
                     <label className="cursor-pointer">
-                      <input className="peer sr-only" name="severity" type="radio" />
+                      <input 
+                        className="peer sr-only" 
+                        name="severity" 
+                        type="radio" 
+                        value="CRITICAL"
+                        checked={severity === 'CRITICAL'}
+                        onChange={() => setSeverity('CRITICAL')}
+                      />
                       <span className="font-label-md text-label-md px-3 py-1.5 border border-error text-error rounded bg-surface-container-lowest peer-checked:bg-error peer-checked:text-on-error transition-colors block">CRITICAL</span>
                     </label>
                   </div>
@@ -231,17 +473,25 @@ export default function PreventionPage() {
                 
                 <div>
                   <label className="block font-label-md text-label-md text-on-surface mb-xs uppercase tracking-wider">Field Notes / Telemetry</label>
-                  <textarea className="w-full bg-surface-container-lowest border border-outline-variant text-on-surface font-body-md text-body-md p-sm rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all resize-none placeholder:text-outline-variant" placeholder="Enter raw descriptive data..." rows={3}></textarea>
+                  <textarea 
+                    className="w-full bg-surface-container-lowest border border-outline-variant text-on-surface font-body-md text-body-md p-sm rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all resize-none placeholder:text-outline-variant" 
+                    placeholder="Enter raw descriptive data..." 
+                    rows={3}
+                    value={notes}
+                    onChange={e => setNotes(e.target.value)}
+                    required
+                  ></textarea>
                 </div>
                 
                 <motion.button 
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="w-full bg-primary text-on-primary font-label-lg text-label-lg py-sm rounded-lg hover:bg-on-surface-variant transition-colors flex items-center justify-center gap-2 mt-xs shadow-md" 
-                  type="button"
+                  className="w-full bg-primary text-on-primary font-label-lg text-label-lg py-sm rounded-lg hover:bg-on-surface-variant transition-colors flex items-center justify-center gap-2 mt-xs shadow-md disabled:opacity-55" 
+                  type="submit"
+                  disabled={submittingLog}
                 >
                   <span className="material-symbols-outlined text-[18px]">send</span>
-                  INITIATE LOG
+                  {submittingLog ? 'INITIATING...' : 'INITIATE LOG'}
                 </motion.button>
               </form>
             </div>
