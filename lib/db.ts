@@ -66,8 +66,36 @@ const globalForDb = global as any;
 if (!globalForDb._directives) {
   globalForDb._directives = JSON.parse(JSON.stringify(DEFAULT_DIRECTIVES));
 }
+
+const DEFAULT_LOGS = [
+  {
+    id: "LOG-VARANASI-091",
+    vector: "Biological Contamination",
+    coordinates: "25.3176° N, 83.0062° E (Ganga at Varanasi)",
+    severity: "ELEVATED",
+    notes: "Organic load surge detected downstream of municipal drain channels. Turbidity has risen to 45 NTU. Dissolved oxygen levels dropped to 4.2 mg/L. Local authorities notified for aeration treatment.",
+    timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString() // 24 hours ago
+  },
+  {
+    id: "LOG-HUDSON-424",
+    vector: "Chemical/Industrial Spill",
+    coordinates: "42.6526° N, 73.7562° W (Hudson River at Albany)",
+    severity: "ELEVATED",
+    notes: "Conductivity spike and surface hydrocarbon sheen observed near industrial zone. Trace solvents detected in runoff. Containment boom barriers deployed at site downstream.",
+    timestamp: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString() // 12 hours ago
+  },
+  {
+    id: "LOG-DELHI-102",
+    vector: "Biological Contamination",
+    coordinates: "28.6139° N, 77.2090° E (Yamuna at Delhi)",
+    severity: "CRITICAL",
+    notes: "Fecal coliform levels surged to 7500 MPN/100mL near Wazirabad barrage. High ammoniacal nitrogen levels measured. Immediate shut-down of secondary intake valves initiated.",
+    timestamp: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString() // 3 hours ago
+  }
+];
+
 if (!globalForDb._incidentLogs) {
-  globalForDb._incidentLogs = [];
+  globalForDb._incidentLogs = JSON.parse(JSON.stringify(DEFAULT_LOGS));
 }
 
 // Ensure data directory exists
@@ -136,7 +164,7 @@ export function getIncidentLogs() {
   try {
     if (!fs.existsSync(LOGS_PATH)) {
       try {
-        fs.writeFileSync(LOGS_PATH, JSON.stringify([], null, 2), 'utf-8');
+        fs.writeFileSync(LOGS_PATH, JSON.stringify(DEFAULT_LOGS, null, 2), 'utf-8');
       } catch (e) {
         // Read-only filesystem
       }

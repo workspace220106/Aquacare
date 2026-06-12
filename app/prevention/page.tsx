@@ -411,10 +411,10 @@ export default function PreventionPage() {
                       required
                     >
                       <option value="">Select Vector...</option>
-                      <option value="Biological Contamination">Biological Contamination</option>
-                      <option value="Chemical/Industrial Spill">Chemical/Industrial Spill</option>
-                      <option value="Infrastructure Failure">Infrastructure Failure</option>
-                      <option value="Anomalous Reading (Sensor)">Anomalous Reading (Sensor)</option>
+                      <option value="Biological Contamination">Biological Contamination (Pathogens, Coliforms)</option>
+                      <option value="Chemical/Industrial Spill">Chemical/Industrial Spill (Heavy Metals, Solvents)</option>
+                      <option value="Infrastructure Failure">Infrastructure Failure (Pipe Burst, Treatment Bypass)</option>
+                      <option value="Anomalous Reading (Sensor)">Anomalous Reading (Sensor Drift, Out-of-bounds pH)</option>
                     </select>
                     <span className="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-outline pointer-events-none">expand_more</span>
                   </div>
