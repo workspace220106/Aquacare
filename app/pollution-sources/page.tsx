@@ -304,7 +304,7 @@ export default function PollutionSourcesPage() {
           {/* Overview Card (Col 1-4) */}
           <motion.div 
             variants={itemVariants}
-            className="lg:col-span-4 bg-white border border-zinc-200 rounded-2xl p-6 flex flex-col h-fit group hover:border-zinc-300 transition-all duration-500 hover:-translate-y-1 hover:shadow-xl hover:shadow-red-500/5"
+            className="lg:col-span-4 bg-white border border-zinc-200 rounded-2xl p-6 flex flex-col h-full group hover:border-zinc-300 transition-all duration-500 hover:-translate-y-1 hover:shadow-xl hover:shadow-red-500/5"
           >
             <div className="flex justify-between items-start mb-6">
               <div className="flex items-center gap-2 text-zinc-900">
@@ -316,16 +316,45 @@ export default function PollutionSourcesPage() {
               <span className="px-3 py-1 bg-red-50 text-red-700 font-label-md text-xs font-bold rounded-full border border-red-200 shadow-sm animate-pulse">ELEVATED</span>
             </div>
             
-            <div className="flex flex-col flex-1">
-              <div className="font-headline-lg text-[56px] font-black leading-none tracking-tighter text-zinc-900 mb-2 group-hover:scale-105 transition-transform origin-left duration-500">
-                {activeSite.globalToxicityIndex.toFixed(1)}
-                <span className="text-headline-md text-zinc-400">%</span>
+            <div className="flex flex-col flex-1 justify-between">
+              <div>
+                <div className="font-headline-lg text-[64px] font-black leading-none tracking-tighter text-zinc-900 mb-2 group-hover:scale-105 transition-transform origin-left duration-500">
+                  {activeSite.globalToxicityIndex.toFixed(1)}
+                  <span className="text-headline-md text-zinc-400">%</span>
+                </div>
+                
+                {/* Visual Gauge */}
+                <div className="w-full bg-zinc-100 h-2.5 rounded-full overflow-hidden my-4 border border-zinc-200/30">
+                  <motion.div 
+                    initial={{ width: 0 }}
+                    animate={{ width: `${activeSite.globalToxicityIndex}%` }}
+                    transition={{ duration: 1, ease: "easeOut" }}
+                    className="bg-red-500 h-full rounded-full"
+                  />
+                </div>
+
+                {/* Telemetry Diagnostics Table */}
+                <div className="flex flex-col gap-2 mt-4 mb-6">
+                  <div className="flex justify-between items-center text-xs border-b border-zinc-100 pb-2">
+                    <span className="text-zinc-500 font-medium">Alert Status</span>
+                    <span className="font-bold text-red-600">CRITICAL LIMIT</span>
+                  </div>
+                  <div className="flex justify-between items-center text-xs border-b border-zinc-100 pb-2">
+                    <span className="text-zinc-500 font-medium">Telemetry Sync</span>
+                    <span className="font-mono text-zinc-700">Real-time (Active)</span>
+                  </div>
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="text-zinc-500 font-medium">Monitored Zones</span>
+                    <span className="font-mono text-zinc-700">{activeSite.activeDischargeZones} Vectors</span>
+                  </div>
+                </div>
+
+                <p className="font-body-md text-sm text-zinc-650 mb-6 leading-relaxed">
+                  Overall concentration of verified pollutants across monitored watersheds. Active site tracked: <strong className="text-zinc-950 font-bold">{activeSite.name}</strong>.
+                </p>
               </div>
-              <div className="h-[1px] w-full bg-gradient-to-r from-zinc-200 via-zinc-200 to-transparent my-4"></div>
-              <p className="font-body-md text-sm text-zinc-650 mb-6 leading-relaxed">
-                Overall concentration of verified pollutants across monitored watersheds. Active site tracked: <strong className="text-zinc-950 font-bold">{activeSite.name}</strong>.
-              </p>
-              <div className="mt-6">
+
+              <div className="mt-auto">
                 <button 
                   onClick={() => {
                     const currentIndex = INDUSTRIAL_SITES.findIndex(s => s.name === activeSite.name);
