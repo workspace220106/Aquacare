@@ -237,6 +237,22 @@ export default function PathogenDetailPage({ params }: PageProps) {
                   </div>
                 </div>
               </div>
+
+              {/* Prevention & Mitigation Protocols Bento Card */}
+              <div className="bg-white border border-zinc-200 rounded-2xl p-6 shadow-sm flex flex-col hover:shadow-md transition-shadow md:col-span-2">
+                <h3 className="font-headline-md text-xl font-bold text-zinc-900 mb-4 flex items-center gap-2 pb-3 border-b border-zinc-100">
+                  <span className="material-symbols-outlined text-zinc-500">shield</span>
+                  Prevention & Mitigation Protocols
+                </h3>
+                <ul className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {pathogen.prevention.map((prev, i) => (
+                    <li key={i} className="flex items-start gap-3 bg-zinc-50 p-4 rounded-xl border border-zinc-150 shadow-sm">
+                      <span className="material-symbols-outlined text-[18px] text-zinc-400 mt-0.5 shrink-0">check_circle</span>
+                      <span className="font-body-md text-sm text-zinc-650 leading-relaxed">{prev}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </motion.div>
           )}
 

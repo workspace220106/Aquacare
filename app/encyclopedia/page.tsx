@@ -179,9 +179,14 @@ export default function EncyclopediaPage() {
                       <h4 className="font-label-lg text-sm font-semibold text-zinc-900 mb-3 flex items-center gap-2">
                         <span className="material-symbols-outlined text-sm text-zinc-400">shield</span> Prevention Protocols
                       </h4>
-                      <p className="font-body-md text-sm text-zinc-600 leading-relaxed">
-                        {pathogen.prevention}
-                      </p>
+                      <ul className="font-body-md text-sm text-zinc-600 space-y-2.5">
+                        {pathogen.prevention?.slice(0, 3).map((p: string, i: number) => (
+                          <li key={i} className="flex items-start gap-2.5">
+                            <span className="material-symbols-outlined text-[16px] text-zinc-300 mt-0.5">check_circle</span> 
+                            {p}
+                          </li>
+                        ))}
+                      </ul>
                     </div>
                   </div>
                   <div className="mt-lg pt-md flex justify-end gap-3 relative z-10">

@@ -9,8 +9,6 @@ interface Hotspot {
   name: string;
   chemical: string;
   load: string;
-  top: string;
-  left: string;
   detail: string;
   level: 'CRITICAL' | 'WARNING' | 'ELEVATED';
 }
@@ -19,36 +17,36 @@ interface IndustrialSite {
   name: string;
   location: string;
   coordinates: string;
-  image: string;
   activeDischargeZones: number;
   globalToxicityIndex: number;
   loadPercentage: number;
   heavyMetalsLevel: number;
   petrochemicalsLevel: number;
   description: string;
+  mapX: number; // 0-1000 coordinate space
+  mapY: number; // 0-500 coordinate space
   hotspots: Hotspot[];
 }
 
 const INDUSTRIAL_SITES: IndustrialSite[] = [
   {
     name: 'Buffalo River Complex',
-    location: 'Buffalo, New York',
+    location: 'Buffalo, New York, USA',
     coordinates: '42.8584° N, 78.8471° W',
-    image: '/industrial_satellite.png',
     activeDischargeZones: 3,
     globalToxicityIndex: 85.6,
     loadPercentage: 42,
     heavyMetalsLevel: 85,
     petrochemicalsLevel: 60,
     description: 'Direct discharge from heavy metal manufacturing and steel processing facilities along the Buffalo River. Primary contributors include lead, mercury, synthetic solvents, and thermal discharge.',
+    mapX: 281,
+    mapY: 131,
     hotspots: [
       {
         id: 'A',
         name: 'Refinery Outflow Alpha',
         chemical: 'Heavy Metals (Pb, Cd, Hg)',
         load: '85% (Critical)',
-        top: '28%',
-        left: '42%',
         level: 'CRITICAL',
         detail: 'Primary discharge point of manufacturing refinery. Heavy metal effluent (Lead & Cadmium) exceeding EPA limits.'
       },
@@ -57,8 +55,6 @@ const INDUSTRIAL_SITES: IndustrialSite[] = [
         name: 'Chemical Runoff Beta',
         chemical: 'Synthetic Solvents & Organics',
         load: '60% (Warning)',
-        top: '52%',
-        left: '68%',
         level: 'WARNING',
         detail: 'Storage tank runoff containing synthetic industrial solvents.'
       },
@@ -67,8 +63,6 @@ const INDUSTRIAL_SITES: IndustrialSite[] = [
         name: 'Cooling Outlet Gamma',
         chemical: 'Thermal Effluent',
         load: '45% (Elevated)',
-        top: '72%',
-        left: '32%',
         level: 'ELEVATED',
         detail: 'Cooling tower heated water outlet, raising local water temperatures and accelerating eutrophication.'
       }
@@ -76,23 +70,22 @@ const INDUSTRIAL_SITES: IndustrialSite[] = [
   },
   {
     name: 'Sacramento Manufacturing Delta',
-    location: 'Sacramento, California',
+    location: 'Sacramento, California, USA',
     coordinates: '38.0607° N, 121.9022° W',
-    image: '/industrial_satellite_2.png',
     activeDischargeZones: 4,
     globalToxicityIndex: 79.4,
     loadPercentage: 38,
     heavyMetalsLevel: 70,
     petrochemicalsLevel: 55,
     description: 'Industrial runoff processing and chemical production outlets situated near agricultural channels. Main pollutants include agricultural packaging residues, hydrocarbon solvents, and urban run-offs.',
+    mapX: 161,
+    mapY: 144,
     hotspots: [
       {
         id: 'A',
         name: 'Pesticide Terminal',
         chemical: 'Pesticide Residues (Atrazine)',
         load: '90% (Critical)',
-        top: '32%',
-        left: '35%',
         level: 'CRITICAL',
         detail: 'Bulk transport packaging discharge channel with persistent chemical residues.'
       },
@@ -101,8 +94,6 @@ const INDUSTRIAL_SITES: IndustrialSite[] = [
         name: 'Refinery Separator',
         chemical: 'Hydrocarbons (Diesel/Oil)',
         load: '55% (Warning)',
-        top: '48%',
-        left: '58%',
         level: 'WARNING',
         detail: 'Wastewater separator outflow with detectable petroleum hydrocarbons.'
       },
@@ -111,8 +102,6 @@ const INDUSTRIAL_SITES: IndustrialSite[] = [
         name: 'Acid Wash Tank Bypass',
         chemical: 'Bypass Runoff (Low pH)',
         load: '40% (Elevated)',
-        top: '68%',
-        left: '42%',
         level: 'ELEVATED',
         detail: 'Occasional low pH discharge from metal cleaning processes.'
       },
@@ -121,8 +110,6 @@ const INDUSTRIAL_SITES: IndustrialSite[] = [
         name: 'Pellet Transport Edge',
         chemical: 'Microplastic Pellets',
         load: '65% (Warning)',
-        top: '22%',
-        left: '72%',
         level: 'WARNING',
         detail: 'Stormwater runoff containing pre-production plastic pellets.'
       }
@@ -130,23 +117,22 @@ const INDUSTRIAL_SITES: IndustrialSite[] = [
   },
   {
     name: 'Houston Ship Channel Sector 4',
-    location: 'Houston, Texas',
+    location: 'Houston, Texas, USA',
     coordinates: '29.7337° N, 95.1481° W',
-    image: '/industrial_satellite_3.png',
     activeDischargeZones: 5,
     globalToxicityIndex: 91.2,
     loadPercentage: 54,
     heavyMetalsLevel: 92,
     petrochemicalsLevel: 80,
     description: 'Major petrochemical refining center. High density of active processing towers and industrial chemical docks discharging directly into the channel.',
+    mapX: 236,
+    mapY: 167,
     hotspots: [
       {
         id: 'A',
         name: 'Petrochemical Canal',
         chemical: 'Aromatic Hydrocarbons (Benzene)',
         load: '92% (Critical)',
-        top: '40%',
-        left: '48%',
         level: 'CRITICAL',
         detail: 'Bulk refining discharge canal. Trace levels of benzene and toluene exceeding national safety levels.'
       },
@@ -155,8 +141,6 @@ const INDUSTRIAL_SITES: IndustrialSite[] = [
         name: 'Catalyst Wash Line',
         chemical: 'Hexavalent Chromium (Cr VI)',
         load: '70% (Warning)',
-        top: '30%',
-        left: '26%',
         level: 'WARNING',
         detail: 'Spent catalyst wash water containing volatile chromium derivatives.'
       },
@@ -165,8 +149,6 @@ const INDUSTRIAL_SITES: IndustrialSite[] = [
         name: 'Solvent Storage Spillway',
         chemical: 'Aromatic Solvents',
         load: '60% (Warning)',
-        top: '58%',
-        left: '72%',
         level: 'WARNING',
         detail: 'Valving leakage at chemical loading docks during high-pressure transfers.'
       },
@@ -175,8 +157,6 @@ const INDUSTRIAL_SITES: IndustrialSite[] = [
         name: 'Process Thermal Basin',
         chemical: 'Thermal Inflow',
         load: '35% (Elevated)',
-        top: '78%',
-        left: '44%',
         level: 'ELEVATED',
         detail: 'Secondary heat exchanger cooling water discharge.'
       },
@@ -185,10 +165,86 @@ const INDUSTRIAL_SITES: IndustrialSite[] = [
         name: 'Condensate Drain Line',
         chemical: 'Phenolic Compounds',
         load: '50% (Elevated)',
-        top: '46%',
-        left: '64%',
         level: 'ELEVATED',
         detail: 'Plastics synthesis plant condensate line discharge containing trace BPA.'
+      }
+    ]
+  },
+  {
+    name: 'Yamuna River Basin',
+    location: 'Delhi, India',
+    coordinates: '28.6139° N, 77.2090° E',
+    activeDischargeZones: 3,
+    globalToxicityIndex: 88.5,
+    loadPercentage: 48,
+    heavyMetalsLevel: 82,
+    petrochemicalsLevel: 70,
+    description: 'Dense industrial and municipal discharge zone adjacent to Delhi. High concentrations of chemical effluent, untreated sewage, and heavy metals from unauthorized electroplating units.',
+    mapX: 715,
+    mapY: 171,
+    hotspots: [
+      {
+        id: 'A',
+        name: 'Wazirabad Canal Inflow',
+        chemical: 'Heavy Metals (Pb, Cr, Ni)',
+        load: '82% (Critical)',
+        level: 'CRITICAL',
+        detail: 'Primary electroplating waste inflow point. Chromic acid and nickel effluents consistently exceed safety guidelines.'
+      },
+      {
+        id: 'B',
+        name: 'Okhla Discharge Outlet',
+        chemical: 'Surfactants & Ammonia',
+        load: '70% (Warning)',
+        level: 'WARNING',
+        detail: 'Industrial detergents and untreated sewage discharge causing visible foam barriers on the river surface.'
+      },
+      {
+        id: 'C',
+        name: 'Najafgarh Drain Confluence',
+        chemical: 'Synthetic Solvents',
+        load: '50% (Elevated)',
+        level: 'ELEVATED',
+        detail: 'Large municipal-industrial canal carrying mixed organic solvents and suspended sediments.'
+      }
+    ]
+  },
+  {
+    name: 'Rhine River Chemical Hub',
+    location: 'Wiesbaden, Germany',
+    coordinates: '50.0782° N, 8.2430° E',
+    activeDischargeZones: 3,
+    globalToxicityIndex: 71.3,
+    loadPercentage: 32,
+    heavyMetalsLevel: 60,
+    petrochemicalsLevel: 50,
+    description: 'Highly regulated European chemical manufacturing hub. Active monitoring focuses on organic synthesis runoffs, pharmaceutical trace indicators, and cooling plant thermal discharges.',
+    mapX: 523,
+    mapY: 111,
+    hotspots: [
+      {
+        id: 'A',
+        name: 'Organic Synthesis Drain',
+        chemical: 'Chlorinated Hydrocarbons',
+        load: '60% (Warning)',
+        level: 'WARNING',
+        detail: 'Trace organic synthesis byproducts. Regulated via continuous online chromatography sensors.'
+      },
+      {
+        id: 'B',
+        name: 'Pharmaceutical Processing',
+        chemical: 'Trace Endocrine Disruptors',
+        load: '50% (Elevated)',
+        level: 'ELEVATED',
+        detail: 'Treated wastewater outlet containing micro-concentrations of active pharmaceutical ingredients.'
+      },
+      {
+        id: 'C',
+        name: 'Thermal Exchange Outlet',
+        chemical: 'Cooling Thermal Discharges',
+        load: '35% (Elevated)',
+        level: 'ELEVATED',
+        detail: 'Thermal loop returning heated clean water. Subject to strict river temperature rise limits.'
       }
     ]
   }
@@ -196,7 +252,7 @@ const INDUSTRIAL_SITES: IndustrialSite[] = [
 
 export default function PollutionSourcesPage() {
   const [activeSite, setActiveSite] = useState<IndustrialSite | null>(null);
-  const [hoveredHotspot, setHoveredHotspot] = useState<Hotspot | null>(null);
+  const [hoveredSiteNode, setHoveredSiteNode] = useState<IndustrialSite | null>(null);
   const [loading, setLoading] = useState(true);
 
   // Initialize random site on refresh
@@ -266,7 +322,7 @@ export default function PollutionSourcesPage() {
               </div>
               <div className="h-[1px] w-full bg-gradient-to-r from-zinc-200 via-zinc-200 to-transparent my-6"></div>
               <p className="font-body-md text-sm text-zinc-600 mb-6 leading-relaxed">
-                Overall concentration of verified pollutants across monitored watersheds has increased in the last 72 hours. Currently tracking: <strong className="text-zinc-950 font-bold">{activeSite.name}</strong>.
+                Overall concentration of verified pollutants across monitored watersheds. Active site tracked: <strong className="text-zinc-950 font-bold">{activeSite.name}</strong>.
               </p>
               <button 
                 onClick={() => {
@@ -277,8 +333,8 @@ export default function PollutionSourcesPage() {
                 className="relative overflow-hidden bg-zinc-900 text-white font-label-md text-sm font-bold px-4 py-3.5 rounded-xl uppercase tracking-widest hover:bg-zinc-800 transition-all w-full shadow-md hover:shadow-lg group/btn cursor-pointer"
               >
                 <span className="relative z-10 flex items-center justify-center gap-2">
-                  <span className="material-symbols-outlined text-[18px]">satellite_alt</span>
-                  Switch Monitoring Site
+                  <span className="material-symbols-outlined text-[18px]">public</span>
+                  Cycle active sites
                 </span>
                 <div className="absolute inset-0 bg-white/10 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300 ease-in-out"></div>
               </button>
@@ -293,10 +349,10 @@ export default function PollutionSourcesPage() {
             <div className="flex justify-between items-start border-b border-zinc-100 pb-6 mb-6">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 bg-zinc-900 text-white rounded-xl flex items-center justify-center shadow-md transform group-hover:rotate-6 transition-transform duration-300">
-                  <span className="material-symbols-outlined text-[24px]" style={{ fontVariationSettings: "'FILL' 1" }}>factory</span>
+                  <span className="material-symbols-outlined text-[24px]" style={{ fontVariationSettings: "'FILL' 1" }}>public</span>
                 </div>
                 <div>
-                  <h2 className="font-headline-md text-[28px] font-bold text-zinc-900 leading-tight">Industrial Effluent</h2>
+                  <h2 className="font-headline-md text-[28px] font-bold text-zinc-900 leading-tight">Global Effluent Map</h2>
                   <div className="flex items-center gap-2 mt-1">
                     <span className="w-2 h-2 rounded-full bg-blue-500"></span>
                     <p className="font-label-md text-xs text-zinc-500 uppercase tracking-widest font-bold">Vector: {activeSite.name} ({activeSite.coordinates})</p>
@@ -311,121 +367,158 @@ export default function PollutionSourcesPage() {
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 flex-1">
               <div className="flex flex-col justify-center">
-                <p className="font-body-md text-sm text-zinc-600 mb-8 leading-relaxed">
+                <p className="font-body-md text-sm text-zinc-650 mb-6 leading-relaxed">
                   {activeSite.description}
                 </p>
-                <div className="flex flex-col gap-6">
-                  <motion.div whileHover={{ scale: 1.02 }} className="p-3 rounded-xl hover:bg-zinc-50 transition-colors border border-zinc-100 shadow-sm">
-                    <div className="flex justify-between font-label-md text-xs font-bold mb-2 uppercase tracking-wide">
-                      <span className="text-zinc-700">Heavy Metals (Pb, Hg, Cd)</span>
-                      <span className="text-red-700 bg-red-50 px-2 py-0.5 rounded text-[10px] border border-red-100 font-bold">CRITICAL</span>
+                <div className="flex flex-col gap-4 mb-4">
+                  <div className="p-3 bg-zinc-50 rounded-xl border border-zinc-150 shadow-inner">
+                    <div className="font-label-lg text-xs font-bold text-zinc-900 uppercase tracking-wider mb-2">Discharge Hotspots Details</div>
+                    <div className="flex flex-col gap-2">
+                      {activeSite.hotspots.map((h) => (
+                        <div key={h.id} className="text-xs flex justify-between items-start gap-4">
+                          <span className="font-semibold text-zinc-700 flex items-center gap-1">
+                            <span className={`w-1.5 h-1.5 rounded-full ${h.level === 'CRITICAL' ? 'bg-red-500' : 'bg-yellow-500'}`}></span>
+                            {h.name} ({h.chemical})
+                          </span>
+                          <span className="text-zinc-500 shrink-0 font-mono font-bold">{h.load}</span>
+                        </div>
+                      ))}
                     </div>
-                    <div className="w-full bg-zinc-100 h-2.5 rounded-full overflow-hidden shadow-inner">
-                      <motion.div 
-                        initial={{ width: 0 }} 
-                        animate={{ width: `${activeSite.heavyMetalsLevel}%` }} 
-                        transition={{ duration: 1, delay: 0.3 }} 
-                        className="bg-gradient-to-r from-red-500 to-red-600 h-full rounded-full relative overflow-hidden"
-                      >
-                        <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.2)_50%,transparent_75%)] bg-[length:1rem_1rem] animate-[shimmer_1s_linear_infinite]"></div>
-                      </motion.div>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="p-2.5 bg-zinc-50 rounded-xl border border-zinc-100 flex flex-col justify-between">
+                      <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Heavy Metals</span>
+                      <span className="text-lg font-black text-red-600 mt-1">{activeSite.heavyMetalsLevel}%</span>
                     </div>
-                  </motion.div>
-                  <motion.div whileHover={{ scale: 1.02 }} className="p-3 rounded-xl hover:bg-zinc-50 transition-colors border border-zinc-100 shadow-sm">
-                    <div className="flex justify-between font-label-md text-xs font-bold mb-2 uppercase tracking-wide">
-                      <span className="text-zinc-700">Petrochemicals</span>
-                      <span className="text-yellow-700 bg-yellow-50 px-2 py-0.5 rounded text-[10px] border border-yellow-100 font-bold">WARNING</span>
+                    <div className="p-2.5 bg-zinc-50 rounded-xl border border-zinc-100 flex flex-col justify-between">
+                      <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Petrochemicals</span>
+                      <span className="text-lg font-black text-yellow-600 mt-1">{activeSite.petrochemicalsLevel}%</span>
                     </div>
-                    <div className="w-full bg-zinc-100 h-2.5 rounded-full overflow-hidden shadow-inner">
-                      <motion.div 
-                        initial={{ width: 0 }} 
-                        animate={{ width: `${activeSite.petrochemicalsLevel}%` }} 
-                        transition={{ duration: 1, delay: 0.4 }} 
-                        className="bg-gradient-to-r from-yellow-400 to-yellow-500 h-full rounded-full"
-                      ></motion.div>
-                    </div>
-                  </motion.div>
+                  </div>
                 </div>
               </div>
 
-              {/* Satellite Interactive Image Container */}
-              <div className="relative h-72 md:h-auto border border-zinc-200 rounded-xl overflow-hidden bg-zinc-900 shadow-inner group/sat">
-                <img 
-                  alt="Industrial area satellite view" 
-                  className="w-full h-full object-cover opacity-85 group-hover/sat:opacity-90 transition-all duration-700 group-hover/sat:scale-[1.03]" 
-                  src={activeSite.image}
-                />
-                
-                {/* HUD Grid Overlay */}
-                <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:20px_20px] pointer-events-none"></div>
+              {/* High-Fidelity SVG World Map Container */}
+              <div className="relative border border-zinc-200 rounded-xl overflow-hidden bg-zinc-50 flex items-center justify-center p-3 group/map select-none min-h-[280px]">
+                {/* SVG map */}
+                <svg viewBox="0 0 1000 500" className="w-full h-auto drop-shadow-sm">
+                  {/* Grid Lines */}
+                  <g stroke="#e5e7eb" strokeWidth="0.5" strokeDasharray="3,3">
+                    <line x1="100" y1="0" x2="100" y2="500" />
+                    <line x1="200" y1="0" x2="200" y2="500" />
+                    <line x1="300" y1="0" x2="300" y2="500" />
+                    <line x1="400" y1="0" x2="400" y2="500" />
+                    <line x1="500" y1="0" x2="500" y2="500" />
+                    <line x1="600" y1="0" x2="600" y2="500" />
+                    <line x1="700" y1="0" x2="700" y2="500" />
+                    <line x1="800" y1="0" x2="800" y2="500" />
+                    <line x1="900" y1="0" x2="900" y2="500" />
+                    
+                    <line x1="0" y1="100" x2="1000" y2="100" />
+                    <line x1="0" y1="200" x2="1000" y2="200" />
+                    <line x1="0" y1="300" x2="1000" y2="300" />
+                    <line x1="0" y1="400" x2="1000" y2="400" />
+                  </g>
 
-                {/* Hotspots Overlay */}
-                {activeSite.hotspots.map((spot) => (
-                  <div
-                    key={spot.id}
-                    className="absolute cursor-pointer"
-                    style={{ top: spot.top, left: spot.left, transform: 'translate(-50%, -50%)' }}
-                    onMouseEnter={() => setHoveredHotspot(spot)}
-                    onMouseLeave={() => setHoveredHotspot(null)}
-                  >
-                    <span className="relative flex h-5 w-5 items-center justify-center">
-                      <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
-                        spot.level === 'CRITICAL' ? 'bg-red-400' : spot.level === 'WARNING' ? 'bg-yellow-400' : 'bg-blue-400'
-                      }`}></span>
-                      <span className={`relative inline-flex rounded-full h-3.5 w-3.5 shadow-md border border-white/40 ${
-                        spot.level === 'CRITICAL' ? 'bg-red-600' : spot.level === 'WARNING' ? 'bg-yellow-500' : 'bg-blue-500'
-                      }`}></span>
-                    </span>
-                  </div>
-                ))}
+                  {/* Continent Shapes */}
+                  <g fill="#e4e4e7" stroke="#d4d4d8" strokeWidth="1" strokeLinejoin="round">
+                    {/* North America */}
+                    <path d="M 80,100 L 120,80 L 160,50 L 220,40 L 300,40 L 320,60 L 300,100 L 280,120 L 290,140 L 280,165 L 300,175 L 310,160 L 325,185 L 290,200 L 260,185 L 255,210 L 260,250 L 250,280 L 240,285 L 225,270 L 235,240 L 205,225 L 210,180 L 195,170 L 180,175 L 185,150 L 165,155 L 155,175 L 140,175 L 145,150 L 120,160 L 100,150 L 95,125 Z" />
+                    {/* South America */}
+                    <path d="M 250,280 L 260,285 L 270,300 L 290,310 L 305,320 L 320,335 L 305,365 L 290,390 L 285,415 L 280,445 L 265,475 L 255,480 L 255,470 L 260,440 L 250,420 L 245,395 L 235,360 L 230,330 L 232,310 L 242,295 Z" />
+                    {/* Eurasia */}
+                    <path d="M 450,80 L 470,75 L 490,60 L 520,55 L 560,50 L 600,45 L 650,40 L 720,45 L 800,50 L 850,55 L 900,60 L 920,80 L 900,120 L 880,135 L 885,155 L 855,185 L 820,195 L 800,210 L 785,250 L 775,275 L 755,275 L 760,250 L 740,245 L 725,260 L 710,245 L 690,255 L 670,225 L 635,220 L 630,240 L 610,230 L 600,250 L 590,240 L 565,245 L 575,225 L 550,220 L 530,225 L 515,245 L 505,245 L 490,220 L 465,220 L 460,205 L 475,190 L 445,185 L 440,165 L 450,150 L 440,140 L 450,125 L 435,115 L 435,95 Z" />
+                    {/* Africa */}
+                    <path d="M 450,220 L 470,220 L 490,220 L 505,245 L 515,245 L 530,225 L 550,220 L 575,225 L 595,255 L 605,275 L 605,305 L 585,340 L 570,365 L 555,395 L 545,410 L 540,410 L 545,390 L 535,370 L 525,355 L 525,320 L 515,310 L 505,300 L 485,300 L 475,295 L 450,280 L 435,265 L 435,235 Z" />
+                    {/* Australia */}
+                    <path d="M 770,330 L 800,320 L 825,325 L 840,335 L 850,355 L 845,380 L 830,390 L 810,395 L 785,390 L 765,370 L 760,350 Z" />
+                    {/* Greenland */}
+                    <path d="M 340,35 L 380,35 L 395,50 L 375,75 L 345,70 L 335,55 Z" />
+                    {/* Madagascar */}
+                    <path d="M 605,355 L 615,350 L 610,380 L 595,385 L 595,365 Z" />
+                  </g>
 
-                {/* Interactive HUD Overlay Tooltip */}
+                  {/* World Map Interactive Node Overlays */}
+                  {INDUSTRIAL_SITES.map((site) => {
+                    const isActive = activeSite.name === site.name;
+                    return (
+                      <g 
+                        key={site.name}
+                        className="cursor-pointer"
+                        onClick={() => setActiveSite(site)}
+                        onMouseEnter={() => setHoveredSiteNode(site)}
+                        onMouseLeave={() => setHoveredSiteNode(null)}
+                      >
+                        {/* Pulse Ring */}
+                        <circle 
+                          cx={site.mapX} 
+                          cy={site.mapY} 
+                          r={isActive ? "20" : "10"}
+                          fill="transparent"
+                          stroke={isActive ? "#ef4444" : "#3b82f6"}
+                          strokeWidth="1.5"
+                          className={isActive ? "animate-pulse" : "hover:animate-ping"}
+                          opacity={isActive ? "0.6" : "0.4"}
+                        />
+                        {/* Node Core */}
+                        <circle 
+                          cx={site.mapX} 
+                          cy={site.mapY} 
+                          r={isActive ? "7" : "5"}
+                          fill={isActive ? "#dc2626" : "#2563eb"}
+                          stroke="#ffffff"
+                          strokeWidth="1.5"
+                          className="transition-all duration-300"
+                        />
+                      </g>
+                    );
+                  })}
+                </svg>
+
+                {/* Map Hover Tooltip Overlay */}
                 <AnimatePresence>
-                  {hoveredHotspot && (
+                  {hoveredSiteNode && (
                     <motion.div
-                      initial={{ opacity: 0, scale: 0.9, y: 5 }}
+                      initial={{ opacity: 0, scale: 0.95, y: 5 }}
                       animate={{ opacity: 1, scale: 1, y: 0 }}
-                      exit={{ opacity: 0, scale: 0.9, y: 5 }}
+                      exit={{ opacity: 0, scale: 0.95, y: 5 }}
                       transition={{ duration: 0.15 }}
                       className="absolute bottom-16 left-4 right-4 bg-zinc-950/95 border border-zinc-800 backdrop-blur-md p-4 rounded-xl text-white shadow-2xl z-20 flex flex-col gap-1.5"
                     >
                       <div className="flex justify-between items-center pb-2 border-b border-zinc-800">
                         <span className="font-label-lg text-sm font-bold tracking-wide flex items-center gap-1.5">
-                          <span className={`w-2 h-2 rounded-full ${
-                            hoveredHotspot.level === 'CRITICAL' ? 'bg-red-500' : hoveredHotspot.level === 'WARNING' ? 'bg-yellow-500' : 'bg-blue-500'
-                          }`}></span>
-                          {hoveredHotspot.name}
+                          <span className={`w-2 h-2 rounded-full ${activeSite.name === hoveredSiteNode.name ? 'bg-red-500 animate-pulse' : 'bg-blue-500'}`}></span>
+                          {hoveredSiteNode.name}
                         </span>
-                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                          hoveredHotspot.level === 'CRITICAL' ? 'bg-red-500/20 text-red-300 border border-red-500/30' :
-                          hoveredHotspot.level === 'WARNING' ? 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30' :
-                          'bg-blue-500/20 text-blue-300 border border-blue-500/30'
-                        }`}>
-                          {hoveredHotspot.chemical}
+                        <span className="text-zinc-400 font-label-md text-[10px] tracking-widest font-bold uppercase">
+                          {hoveredSiteNode.location}
                         </span>
                       </div>
                       <p className="font-body-md text-xs text-zinc-400 leading-relaxed mt-1">
-                        {hoveredHotspot.detail}
+                        Coordinates: <strong className="text-white font-mono">{hoveredSiteNode.coordinates}</strong> | Active Discharge Zones: <strong className="text-white font-bold">{hoveredSiteNode.activeDischargeZones}</strong>
                       </p>
                       <div className="flex justify-between items-center text-[10px] font-label-md uppercase tracking-wider text-zinc-500 mt-1">
-                        <span>Discharge Load: <strong className="text-white font-bold">{hoveredHotspot.load}</strong></span>
-                        <span>Hotspot ID: {hoveredHotspot.id}</span>
+                        <span>Click node to select and view detailed parameters</span>
+                        {activeSite.name === hoveredSiteNode.name && (
+                          <span className="text-red-400 font-bold">ACTIVE MONITOR</span>
+                        )}
                       </div>
                     </motion.div>
                   )}
                 </AnimatePresence>
 
-                {/* Bottom Bar info */}
-                <div className="absolute bottom-0 left-0 right-0 p-4 backdrop-blur-sm bg-zinc-950/90 border-t border-zinc-800 z-10 flex justify-between items-center">
-                  <span className="text-white font-label-md text-xs uppercase tracking-widest font-bold flex items-center gap-2">
-                    <span className="relative flex h-3 w-3">
+                {/* Bottom Bar Info */}
+                <div className="absolute bottom-0 left-0 right-0 p-3.5 backdrop-blur-sm bg-zinc-950/90 border-t border-zinc-850 z-10 flex justify-between items-center text-white">
+                  <span className="font-label-md text-xs uppercase tracking-widest font-bold flex items-center gap-2">
+                    <span className="relative flex h-3.5 w-3.5">
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+                      <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-red-500"></span>
                     </span>
-                    {activeSite.activeDischargeZones} Active Discharge Zones Detected
+                    {activeSite.activeDischargeZones} Active Hotspots In Vector
                   </span>
                   <span className="text-zinc-500 font-label-md text-[10px] tracking-wide uppercase font-bold hidden sm:inline">
-                    Hover image hotspots for telemetry
+                    Click nodes to select monitoring zones
                   </span>
                 </div>
               </div>
