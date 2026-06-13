@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { useSearch } from '@/context/SearchContext';
+import Link from 'next/link';
 
 export default function EncyclopediaPage() {
   const { searchQuery } = useSearch();
@@ -10,10 +11,14 @@ export default function EncyclopediaPage() {
   const [loading, setLoading] = useState(true);
 
   // Helper to check if a pathogen name or description matches search
-  const matchesSearch = (name: string, desc?: string) => {
+  const matchesSearch = (displayName: string, name: string, desc?: string) => {
     if (!searchQuery) return true;
     const q = searchQuery.toLowerCase();
-    return name.toLowerCase().includes(q) || (desc?.toLowerCase().includes(q));
+    return (
+      displayName.toLowerCase().includes(q) ||
+      name.toLowerCase().includes(q) ||
+      desc?.toLowerCase().includes(q)
+    );
   };
 
   useEffect(() => {
@@ -44,55 +49,41 @@ export default function EncyclopediaPage() {
     show: { opacity: 1, y: 0 }
   };
 
-  const pathogens = [
-    {
-      id: "VCH-01",
-      name: data[0]?.name || "Vibrio cholerae",
-      displayName: "Cholera",
-      desc: data[0]?.description || "Gram-negative, comma-shaped bacterium. Primary vector for epidemic cholera.",
-      risk: "Critical Risk",
-      riskColor: "bg-red-600",
-      type: "primary",
-      symptoms: ["Acute, severe watery diarrhea", "Rapid dehydration and electrolyte imbalance", "Muscular cramping and lethargy"],
-      prevention: ["Strict water sanitation and chlorination", "Improved municipal sewage infrastructure", "Oral cholera vaccines (OCV) in endemic zones"]
-    },
-    {
-      id: "STM-02",
-      name: data[1]?.name || "Salmonella Typhi",
-      displayName: "Typhoid Fever",
-      desc: data[1]?.description || "Prolonged high fever, fatigue, headache, nausea, abdominal pain, and constipation or diarrhea.",
-      risk: "High Risk",
-      riskColor: "bg-amber-600",
-      type: "secondary",
-      transmission: data[1]?.transmission || "Fecal-oral transmission primarily through contaminated drinking water."
-    },
-    {
-      id: "GIA-03",
-      displayName: "Giardiasis",
-      name: "Giardia duodenalis",
-      desc: "Microscopic parasite causing diarrheal illness. highly resistant to standard chlorine treatment; requires advanced filtration.",
-      type: "standard",
-      icon: "microbiology"
-    },
-    {
-      id: "LEG-04",
-      displayName: "Legionnaires'",
-      name: "Legionella pneumophila",
-      desc: "Severe form of pneumonia contracted by inhaling aerosolized water droplets from contaminated building water systems.",
-      type: "standard",
-      icon: "air"
-    },
-    {
-      id: "DYS-05",
-      displayName: "Dysentery",
-      name: data[2]?.name || "Shigella / Entamoeba",
-      desc: data[2]?.description || "Intestinal inflammation causing severe diarrhea with blood. Strongly linked to inadequate sanitation infrastructure.",
-      type: "featured",
-      icon: "water_damage"
-    }
-  ];
+  // Build local rendering cards structure on top of the dynamic database content
+  const pathogens = data.map((item: any) => {
+    let type = 'standard';
+    let icon = 'microbiology';
 
-  const filteredPathogens = pathogens.filter(p => matchesSearch(p.displayName, p.desc) || matchesSearch(p.name));
+    if (item.id === 'VCH-01') {
+      type = 'primary';
+      icon = 'coronavirus';
+    } else if (item.id === 'STM-02') {
+      type = 'secondary';
+      icon = 'bug_report';
+    } else if (item.id === 'GIA-03') {
+      type = 'standard';
+      icon = 'microbiology';
+    } else if (item.id === 'LEG-04') {
+      type = 'standard';
+      icon = 'air';
+    } else if (item.id === 'DYS-05') {
+      type = 'featured';
+      icon = 'water_damage';
+    }
+
+    return {
+      ...item,
+      type,
+      icon,
+      // Fallback descriptions for index cards
+      desc: item.description,
+      risk: item.id === 'VCH-01' ? 'Critical Risk' : item.id === 'STM-02' ? 'High Risk' : 'High Risk'
+    };
+  });
+
+  const filteredPathogens = pathogens.filter(p =>
+    matchesSearch(p.displayName, p.name, p.description)
+  );
 
   return (
     <div className="flex-1 p-lg max-w-[1280px] mx-auto w-full h-full overflow-y-auto bg-zinc-50/55">
@@ -104,7 +95,7 @@ export default function EncyclopediaPage() {
       >
         <div>
           <h2 className="font-headline-lg text-headline-lg text-zinc-900 mb-xs tracking-tight font-bold bg-clip-text text-transparent bg-gradient-to-r from-zinc-950 to-zinc-600">Pathogen Database</h2>
-          <p className="font-body-md text-body-md text-zinc-650 max-w-2xl">
+          <p className="font-body-md text-body-md text-zinc-600 max-w-2xl">
             A comprehensive technical index of waterborne diseases, cataloging biological agents, vectors, symptoms, and structural prevention methodologies.
           </p>
         </div>
@@ -128,153 +119,193 @@ export default function EncyclopediaPage() {
         </div>
       </motion.div>
 
+      {/* Loading State */}
+      {loading && (
+        <div className="flex flex-col items-center justify-center py-20 text-zinc-500 gap-4">
+          <span className="w-8 h-8 rounded-full border-4 border-zinc-350 border-t-zinc-900 animate-spin"></span>
+          <p className="font-label-md text-sm font-semibold tracking-wider uppercase">Loading database assets...</p>
+        </div>
+      )}
+
       {/* Pathogen Grid (Bento Style) */}
-      <motion.div 
-        variants={staggerContainer}
-        initial="hidden"
-        animate="show"
-        className="grid grid-cols-1 lg:grid-cols-3 gap-md pb-xl"
-      >
-        {filteredPathogens.map((pathogen, idx) => {
-          if (pathogen.type === "primary") {
-            return (
-              <motion.article 
-                key={pathogen.id}
-                variants={itemVariant}
-                className="col-span-1 lg:col-span-2 bg-white border border-zinc-200 rounded-2xl p-lg flex flex-col shadow-sm hover:shadow-md transition-shadow group relative overflow-hidden"
-              >
-                <div className="absolute top-0 right-0 w-64 h-64 bg-red-500/5 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none"></div>
-                <div className="flex justify-between items-start mb-md pb-md border-b border-zinc-100 relative z-10">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-red-50 text-red-600 rounded-xl flex items-center justify-center border border-red-100 shadow-inner">
-                      <span className="material-symbols-outlined text-2xl">coronavirus</span>
+      {!loading && (
+        <motion.div 
+          variants={staggerContainer}
+          initial="hidden"
+          animate="show"
+          className="grid grid-cols-1 lg:grid-cols-3 gap-md pb-xl"
+        >
+          {filteredPathogens.map((pathogen) => {
+            if (pathogen.type === 'primary') {
+              return (
+                <motion.article 
+                  key={pathogen.id}
+                  variants={itemVariant}
+                  className="col-span-1 lg:col-span-2 bg-white border border-zinc-200 rounded-2xl p-lg flex flex-col shadow-sm hover:shadow-md transition-shadow group relative overflow-hidden"
+                >
+                  <div className="absolute top-0 right-0 w-64 h-64 bg-red-500/5 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none"></div>
+                  <div className="flex justify-between items-start mb-md pb-md border-b border-zinc-100 relative z-10">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 bg-red-50 text-red-600 rounded-xl flex items-center justify-center border border-red-100 shadow-inner">
+                        <span className="material-symbols-outlined text-2xl">{pathogen.icon}</span>
+                      </div>
+                      <div>
+                        <h3 className="font-headline-md text-3xl font-bold text-zinc-900 leading-none mb-1 group-hover:text-red-600 transition-colors">{pathogen.displayName}</h3>
+                        <span className="font-label-md text-xs text-zinc-500 uppercase tracking-widest font-semibold flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span> {pathogen.name}
+                        </span>
+                      </div>
+                    </div>
+                    <span className="px-2.5 py-1 bg-red-600 text-white text-[10px] font-bold tracking-widest uppercase rounded-md shadow-sm flex items-center gap-1">
+                      <span className="material-symbols-outlined text-[12px]">warning</span> {pathogen.risk}
+                    </span>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-lg flex-1 relative z-10">
+                    <div className="bg-zinc-50 rounded-xl p-4 border border-zinc-150">
+                      <h4 className="font-label-lg text-sm font-semibold text-zinc-900 mb-3 flex items-center gap-2">
+                        <span className="material-symbols-outlined text-sm text-zinc-400">medical_services</span> Clinical Symptoms
+                      </h4>
+                      <ul className="font-body-md text-sm text-zinc-600 space-y-2.5">
+                        {pathogen.clinical?.symptoms?.slice(0, 3).map((s: string, i: number) => (
+                          <li key={i} className="flex items-start gap-2.5">
+                            <span className="material-symbols-outlined text-[16px] text-zinc-300 mt-0.5">check_circle</span> 
+                            {s}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div className="bg-zinc-50 rounded-xl p-4 border border-zinc-150">
+                      <h4 className="font-label-lg text-sm font-semibold text-zinc-900 mb-3 flex items-center gap-2">
+                        <span className="material-symbols-outlined text-sm text-zinc-400">shield</span> Prevention Protocols
+                      </h4>
+                      <p className="font-body-md text-sm text-zinc-600 leading-relaxed">
+                        {pathogen.prevention}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="mt-lg pt-md flex justify-end gap-3 relative z-10">
+                    <Link href={`/encyclopedia/${pathogen.id}?tab=technical`}>
+                      <motion.button 
+                        whileHover={{ scale: 1.05 }} 
+                        whileTap={{ scale: 0.95 }} 
+                        className="px-5 py-2.5 border border-zinc-200 text-zinc-900 rounded-lg font-label-md text-sm font-medium hover:bg-zinc-50 transition-all cursor-pointer"
+                      >
+                        Technical Data
+                      </motion.button>
+                    </Link>
+                    <Link href={`/encyclopedia/${pathogen.id}?tab=clinical`}>
+                      <motion.button 
+                        whileHover={{ scale: 1.05 }} 
+                        whileTap={{ scale: 0.95 }} 
+                        className="px-5 py-2.5 bg-zinc-900 text-white rounded-lg font-label-md text-sm font-medium hover:opacity-90 transition-all shadow-md cursor-pointer"
+                      >
+                        View Profile
+                      </motion.button>
+                    </Link>
+                  </div>
+                </motion.article>
+              );
+            }
+            
+            if (pathogen.type === 'secondary') {
+              return (
+                <motion.article 
+                  key={pathogen.id}
+                  variants={itemVariant}
+                  className="col-span-1 bg-white border border-zinc-200 rounded-2xl p-lg flex flex-col shadow-sm hover:shadow-md transition-shadow relative overflow-hidden"
+                >
+                  <div className="absolute top-0 right-0 w-48 h-48 bg-amber-500/5 rounded-full blur-3xl -mr-24 -mt-24 pointer-events-none"></div>
+                  <div className="flex justify-between items-start mb-md pb-md border-b border-zinc-100 relative z-10">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 bg-zinc-50 text-zinc-600 rounded-xl flex items-center justify-center border border-zinc-200">
+                        <span className="material-symbols-outlined text-2xl">{pathogen.icon}</span>
+                      </div>
+                      <div>
+                        <h3 className="font-headline-md text-2xl font-bold text-zinc-900 leading-none mb-1">{pathogen.displayName}</h3>
+                        <span className="font-label-md text-xs text-zinc-500 uppercase tracking-widest font-semibold">{pathogen.name}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex-1 flex flex-col gap-6 relative z-10">
+                    <div>
+                      <h4 className="font-label-lg text-sm font-semibold text-zinc-900 mb-2">Biological Profile</h4>
+                      <p className="font-body-md text-sm text-zinc-600 leading-relaxed line-clamp-3">{pathogen.desc}</p>
                     </div>
                     <div>
-                      <h3 className="font-headline-md text-3xl font-bold text-zinc-900 leading-none mb-1 group-hover:text-red-600 transition-colors">{pathogen.displayName}</h3>
-                      <span className="font-label-md text-xs text-zinc-500 uppercase tracking-widest font-semibold flex items-center gap-1">
-                        <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span> {pathogen.name}
-                      </span>
+                      <h4 className="font-label-lg text-sm font-semibold text-zinc-900 mb-2">Vector Origin</h4>
+                      <p className="font-body-md text-sm text-zinc-600 leading-relaxed">{pathogen.transmission}</p>
                     </div>
                   </div>
-                  <span className="px-2.5 py-1 bg-red-600 text-white text-[10px] font-bold tracking-widest uppercase rounded-md shadow-sm flex items-center gap-1">
-                    <span className="material-symbols-outlined text-[12px]">warning</span> {pathogen.risk}
-                  </span>
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-lg flex-1 relative z-10">
-                  <div className="bg-zinc-50 rounded-xl p-4 border border-zinc-150">
-                    <h4 className="font-label-lg text-sm font-semibold text-zinc-900 mb-3 flex items-center gap-2">
-                      <span className="material-symbols-outlined text-sm text-zinc-400">medical_services</span> Clinical Symptoms
-                    </h4>
-                    <ul className="font-body-md text-sm text-zinc-650 space-y-2.5">
-                      {pathogen.symptoms?.map((s, i) => (
-                        <li key={i} className="flex items-start gap-2.5"><span className="material-symbols-outlined text-[16px] text-zinc-300 mt-0.5">check_circle</span> {s}</li>
-                      ))}
-                    </ul>
+                  <div className="mt-lg pt-md relative z-10">
+                    <Link href={`/encyclopedia/${pathogen.id}?tab=clinical`} className="block w-full">
+                      <motion.button 
+                        whileHover={{ scale: 1.02 }} 
+                        whileTap={{ scale: 0.98 }} 
+                        className="w-full px-4 py-2.5 bg-zinc-100 text-zinc-900 rounded-lg font-label-md text-sm font-medium hover:bg-zinc-200 transition-all cursor-pointer text-center"
+                      >
+                        View Profile
+                      </motion.button>
+                    </Link>
                   </div>
-                  <div className="bg-zinc-50 rounded-xl p-4 border border-zinc-150">
-                    <h4 className="font-label-lg text-sm font-semibold text-zinc-900 mb-3 flex items-center gap-2">
-                      <span className="material-symbols-outlined text-sm text-zinc-400">shield</span> Prevention Protocols
-                    </h4>
-                    <ul className="font-body-md text-sm text-zinc-650 space-y-2.5">
-                      {pathogen.prevention?.map((p, i) => (
-                        <li key={i} className="flex items-start gap-2.5"><span className="material-symbols-outlined text-[16px] text-zinc-300 mt-0.5">check_circle</span> {p}</li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-                <div className="mt-lg pt-md flex justify-end gap-3 relative z-10">
-                  <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="px-5 py-2.5 border border-zinc-200 text-zinc-900 rounded-lg font-label-md text-sm font-medium hover:bg-zinc-50 transition-all">Technical Data</motion.button>
-                  <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="px-5 py-2.5 bg-zinc-900 text-white rounded-lg font-label-md text-sm font-medium hover:opacity-90 transition-all shadow-md">View Profile</motion.button>
-                </div>
-              </motion.article>
-            );
-          }
-          
-          if (pathogen.type === "secondary") {
-            return (
-              <motion.article 
-                key={pathogen.id}
-                variants={itemVariant}
-                className="col-span-1 bg-white border border-zinc-200 rounded-2xl p-lg flex flex-col shadow-sm hover:shadow-md transition-shadow relative overflow-hidden"
-              >
-                <div className="absolute top-0 right-0 w-48 h-48 bg-amber-500/5 rounded-full blur-3xl -mr-24 -mt-24 pointer-events-none"></div>
-                <div className="flex justify-between items-start mb-md pb-md border-b border-zinc-100 relative z-10">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-zinc-50 text-zinc-650 rounded-xl flex items-center justify-center border border-zinc-200">
-                      <span className="material-symbols-outlined text-2xl">bug_report</span>
-                    </div>
-                    <div>
-                      <h3 className="font-headline-md text-2xl font-bold text-zinc-900 leading-none mb-1">{pathogen.displayName}</h3>
-                      <span className="font-label-md text-xs text-zinc-500 uppercase tracking-widest font-semibold">{pathogen.name}</span>
-                    </div>
-                  </div>
-                </div>
-                <div className="flex-1 flex flex-col gap-6 relative z-10">
-                  <div>
-                    <h4 className="font-label-lg text-sm font-semibold text-zinc-900 mb-2">Symptoms</h4>
-                    <p className="font-body-md text-sm text-zinc-650 leading-relaxed">{pathogen.desc}</p>
-                  </div>
-                  <div>
-                    <h4 className="font-label-lg text-sm font-semibold text-zinc-900 mb-2">Vector Origin</h4>
-                    <p className="font-body-md text-sm text-zinc-650 leading-relaxed">{pathogen.transmission}</p>
-                  </div>
-                </div>
-                <div className="mt-lg pt-md relative z-10">
-                  <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="w-full px-4 py-2.5 bg-zinc-100 text-zinc-900 rounded-lg font-label-md text-sm font-medium hover:bg-zinc-200 transition-all">View Profile</motion.button>
-                </div>
-              </motion.article>
-            );
-          }
+                </motion.article>
+              );
+            }
 
-          if (pathogen.type === "standard") {
-            return (
-              <motion.article 
-                key={pathogen.id}
-                variants={itemVariant}
-                whileHover={{ y: -4 }}
-                className="bg-white border border-zinc-200 rounded-2xl p-6 flex flex-col shadow-sm hover:shadow-md transition-shadow cursor-pointer group"
-              >
-                <div className="flex justify-between items-center mb-2">
-                  <h3 className="font-headline-md text-lg font-bold text-zinc-900">{pathogen.displayName}</h3>
-                  <span className="material-symbols-outlined text-zinc-400 group-hover:text-zinc-700 transition-colors">{pathogen.icon}</span>
-                </div>
-                <span className="font-label-md text-xs text-zinc-500 mb-4 pb-3 border-b border-zinc-100 block font-medium">{pathogen.name}</span>
-                <p className="font-body-md text-sm text-zinc-600 flex-1 mb-6 leading-relaxed">{pathogen.desc}</p>
-                <button className="text-left font-label-md text-sm font-semibold text-zinc-900 flex items-center gap-1.5 group-hover:gap-2 transition-all">
-                  Analysis <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
-                </button>
-              </motion.article>
-            );
-          }
+            if (pathogen.type === 'standard') {
+              return (
+                <Link href={`/encyclopedia/${pathogen.id}?tab=analysis`} key={pathogen.id} className="block">
+                  <motion.article 
+                    variants={itemVariant}
+                    whileHover={{ y: -4 }}
+                    className="bg-white border border-zinc-200 rounded-2xl p-6 flex flex-col shadow-sm hover:shadow-md transition-shadow cursor-pointer group h-full"
+                  >
+                    <div className="flex justify-between items-center mb-2">
+                      <h3 className="font-headline-md text-lg font-bold text-zinc-900">{pathogen.displayName}</h3>
+                      <span className="material-symbols-outlined text-zinc-400 group-hover:text-zinc-700 transition-colors">{pathogen.icon}</span>
+                    </div>
+                    <span className="font-label-md text-xs text-zinc-500 mb-4 pb-3 border-b border-zinc-100 block font-medium">{pathogen.name}</span>
+                    <p className="font-body-md text-sm text-zinc-650 flex-1 mb-6 leading-relaxed line-clamp-4">{pathogen.desc}</p>
+                    <div className="text-left font-label-md text-sm font-semibold text-zinc-900 flex items-center gap-1.5 group-hover:gap-2 transition-all mt-auto">
+                      Analysis <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+                    </div>
+                  </motion.article>
+                </Link>
+              );
+            }
 
-          if (pathogen.type === "featured") {
-            return (
-              <motion.article 
-                key={pathogen.id}
-                variants={itemVariant}
-                whileHover={{ y: -4, scale: 1.02 }}
-                className="bg-white border border-zinc-200 rounded-2xl p-6 flex flex-col relative overflow-hidden group shadow-sm hover:shadow-md transition-all cursor-pointer"
-              >
-                <div className="absolute inset-0 bg-cover bg-center opacity-30 group-hover:opacity-40 group-hover:scale-105 transition-all duration-700" style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuBWuAwvDctNDqe2DGiDBHLZNG4vzSpKuY67NoozS_cP_UaT_A3CyQgKNml26soKv5_pwPcyIgqW8a_orQUOEcnXpoDatpE8Ks5q0D58ja6Ae0lze-_h3Nu_mDcpz_57jfU8nP0HmhWL_Qs-3Y6GP3HN1wMeMIVasC-nUMrVNIkrgHs7hlEEBoIP_3u4H9EWSIOoEPJNB-yJaZt9jSRo4vQOlE_lA06030G3vATbDwq1_XR7286W1BHk2zz5t-y94Kow-4jBmXrwiEHi')" }}></div>
-                <div className="absolute inset-0 bg-gradient-to-t from-white via-white/90 to-transparent"></div>
-                <div className="relative z-10 flex flex-col h-full">
-                  <div className="flex justify-between items-center mb-2">
-                    <h3 className="font-headline-md text-lg font-bold text-zinc-900">{pathogen.displayName}</h3>
-                    <span className="material-symbols-outlined text-zinc-500 group-hover:text-zinc-900 transition-colors">{pathogen.icon}</span>
-                  </div>
-                  <span className="font-label-md text-xs text-zinc-500 mb-4 pb-3 border-b border-zinc-200 block font-medium">{pathogen.name}</span>
-                  <p className="font-body-md text-sm text-zinc-750 flex-1 mb-6 leading-relaxed">{pathogen.desc}</p>
-                  <button className="text-left font-label-md text-sm font-semibold text-zinc-900 flex items-center gap-1.5 group-hover:gap-2 transition-all">
-                    Analysis <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
-                  </button>
-                </div>
-              </motion.article>
-            );
-          }
-          return null;
-        })}
-      </motion.div>
+            if (pathogen.type === 'featured') {
+              return (
+                <Link href={`/encyclopedia/${pathogen.id}?tab=analysis`} key={pathogen.id} className="block">
+                  <motion.article 
+                    variants={itemVariant}
+                    whileHover={{ y: -4, scale: 1.02 }}
+                    className="bg-white border border-zinc-200 rounded-2xl p-6 flex flex-col relative overflow-hidden group shadow-sm hover:shadow-md transition-all cursor-pointer h-full"
+                  >
+                    <div 
+                      className="absolute inset-0 bg-cover bg-center opacity-30 group-hover:opacity-40 group-hover:scale-105 transition-all duration-700" 
+                      style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuBWuAwvDctNDqe2DGiDBHLZNG4vzSpKuY67NoozS_cP_UaT_A3CyQgKNml26soKv5_pwPcyIgqW8a_orQUOEcnXpoDatpE8Ks5q0D58ja6Ae0lze-_h3Nu_mDcpz_57jfU8nP0HmhWL_Qs-3Y6GP3HN1wMeMIVasC-nUMrVNIkrgHs7hlEEBoIP_3u4H9EWSIOoEPJNB-yJaZt9jSRo4vQOlE_lA06030G3vATbDwq1_XR7286W1BHk2zz5t-y94Kow-4jBmXrwiEHi')" }}
+                    ></div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-white via-white/90 to-transparent"></div>
+                    <div className="relative z-10 flex flex-col h-full">
+                      <div className="flex justify-between items-center mb-2">
+                        <h3 className="font-headline-md text-lg font-bold text-zinc-900">{pathogen.displayName}</h3>
+                        <span className="material-symbols-outlined text-zinc-500 group-hover:text-zinc-900 transition-colors">{pathogen.icon}</span>
+                      </div>
+                      <span className="font-label-md text-xs text-zinc-500 mb-4 pb-3 border-b border-zinc-200 block font-medium">{pathogen.name}</span>
+                      <p className="font-body-md text-sm text-zinc-700 flex-1 mb-6 leading-relaxed line-clamp-4">{pathogen.desc}</p>
+                      <div className="text-left font-label-md text-sm font-semibold text-zinc-900 flex items-center gap-1.5 group-hover:gap-2 transition-all mt-auto">
+                        Analysis <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+                      </div>
+                    </div>
+                  </motion.article>
+                </Link>
+              );
+            }
+            return null;
+          })}
+        </motion.div>
+      )}
     </div>
   );
 }
